@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+#
+# Description: Update config's colors
+# Dependencies: art, notf
+
+colr="${HOME}/.colors"
+dir="${HOME}/.themes"
+theme=`cat $colr | head -1 | awk '{ print $2}'`
+ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
+wal=`ls ${dir}/${theme} | grep "wal"`
+
+get() {
+    echo `cat "$colr" | grep $1 | awk '{ print $3 }'`
+}
+
+load() {
+    echo "Loading the theme..."
+    
+    blk=$(get "blk")
+    gry=$(get "gry")
+    red=$(get "red")
+    grn=$(get "grn")
+    blu=$(get "blu")
+    wht=$(get "wht")
+}
+
+# Huge thanks to Dylan Araps for this
+set_special() {
+    sequences+="\033]${1};${2}\007"
+}
+
+# Huge thanks to Dylan Araps for this
+set_color() {
+    sequences+="\033]4;${1};${2}\007"
+}
+
+# Huge thanks to Dylan Araps for this
+update_terms() {
+    # spe
+    set_special 10  "$wht"
+    set_special 11  "$blk"
+    set_special 12  "$wht"
+    set_special 13  "$wht"
+    set_special 14  "$blk"
+    set_special 708 "$blk"
+
+    # blk
+    set_color 0  "$blk"
+    
+    # gry
+    set_color 8  "$gry"
+    
+    # red
+    set_color 1  "$red"
+    set_color 5  "$red"
+    set_color 9  "$red"
+    set_color 13 "$red"
+    
+    # grn
+    set_color 2  "$grn"
+    set_color 3  "$grn"
+    set_color 10 "$grn"
+    set_color 11 "$grn"
+    
+    # blu
+    set_color 4  "$blu"
+    set_color 6  "$blu"
+    set_color 12 "$blu"
+    set_color 14 "$blu"
+
+    # wht
+    set_color 7  "$wht"
+    set_color 15 "$wht"
+
+    # else
+    sequences+="\033]4;66;${blk}\007"
+           
+    for term in /dev/pts/[0-9]*
+    do  
+        [[ -w "$term" ]] && printf "%b" "$sequences" > "$term" &
+    done
+}
+
+# /!\ WARNING /!\
+# This function is very user specific
+update() {
+    echo "Updating xrdb..."
+    xrdb -merge ${HOME}/.Xresources
+
+    echo "Updating 2bwm..."
+    xdotool key "ctrl+super+r"
+
+    echo "Updating polybar..."
+    polybar-msg cmd restart &> /dev/null
+
+    echo "Updating the terminals..."
+    update_terms
+
+    echo "Updating the wallpaper..."
+    feh --bg-fill ${dir}/${theme}/${wal}
+
+    echo "Updating dunst..."
+    killall dunst &> /dev/null
+    dunst \
+        -hide_duplicate_count \
+        -lb "$blk" \
+        -nb "$blk" \
+        -cb "$blk" \
+        -lf "$wht" \
+        -bf "$wht" \
+        -cf "$wht" \
+        -nf "$wht" &
+}
+
+main() {
+    load
+
+    update
+
+    notf "Theme: $theme"
+}
+
+main
