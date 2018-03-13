@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+adjust_out_of_bound() {
+    ([ $1 -lt $out_of_bound1 ] && echo $out_of_bound1) || ([ $1 -gt $out_of_bound2 ] && echo $out_of_bound2) || echo $1
+}
+
+adjust() {
+    hex_to_rgb $1
+
+    R=$(( $R + $2 ))
+    G=$(( $G + $3 ))
+    B=$(( $B + $4 ))
+
+    R=$(adjust_out_of_bound $R)
+    G=$(adjust_out_of_bound $G)
+    B=$(adjust_out_of_bound $B)
+
+    echo $(rgb_to_hex)
+}
+
+adjust_colors() {
+    for i in "$@"
+    do  
+        case $i in
+            "red")
+                red=$(adjust $red 1 -1 -1)
+            ;;  
+            "grn")
+                grn=$(adjust $grn -1 1 -1)
+            ;;  
+            "blu")
+                blu=$(adjust $blu -1 -1 1)
+            ;;  
+            "gry")
+                gry=$(adjust $gry 0 0 0)
+            ;;  
+        esac
+    done
+}   

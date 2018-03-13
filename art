@@ -4,546 +4,85 @@
 # Dependency: imagemagick
 #
 # TODO:
-# - split
 # - unsplash
+# - redo args
+# - cleanup files
 
-bin="${HOME}/.bin"
-dir="${HOME}/.themes"
-colr="${HOME}/.colors"
-lock="${bin}/lock.png"
-nb=10
+# Get arguments
+args=($@)
+nb_args=$#
 
-quit() {
-    echo "$1"
+# Import functions
+. adjsts
+. args
+. checks
+. cvrts
+. gens
+. inits
+. sets
+. tweaks
+. updts
+
+error() {
+    echo "ERROR: $1"
     exit 1
 }
 
-check_param() {
-    if [[ -z $1 || $1 == -* ]]
-    then
-        echo "Please provide correct parameters"
-        exit 1
-    fi
+quit() {
+    exit 0
 }
 
-check_false() {
-    if [[ -n $1 && $1 == false ]]
-    then
-        echo "Invalid combination of arguments"
-        exit 1
-    fi
-}
+load_colors() {
+    echo "Loading the theme..."
 
-args() {
-    args=("$@")
-
-    i=0
-
-    while [[ $i != $# ]]
-    do
-    	case "${args[$i]}" in
-	"-a")
-	    [ $# -gt 1 ] && quit "Invalid combination of arguments"
-
-	    for entry in ${dir}/*
-	    do
-            list+="$(basename $entry)\n"
-	    done
-
-	    echo "List of available themes:"
-	    echo -e $list
-	    
-	    exit 0
-        ;;
-        "-c")
-	    [ $# -gt 1 ] && quit "Invalid combination of arguments"
-	    
-	    theme=`cat $colr | head -1 | awk '{ print $2}'`
-
-	    [ -z $theme ] && quit "Please set a theme first"
-	    
-	    echo "Current theme: $theme" && exit 0
-	;;
-	"-d")
-	    ctheme="dark"
-    ;;
-	"-i")
-	    check_false $import
-	    
-	    import=true
-	    name=false
-	    random=false
-	    switch=false
-
-        i=$(( $i + 1 ))
-	    check_param ${args[$i]}
-        path=`realpath ${args[$i]}`
-	    [ ! -f $path ] && quit "The provided file doesn't exist"
-	    
-	    ext="${path##*.}"
-	    if [[ $ext != "jpg" && $ext != "png" ]]
-	    then
-            quit "There is a problem with the extension of your file"
-        fi
-
-	    i=$(( $i + 1 ))
-	    check_param ${args[$i]}
-        theme=${args[$i]}
-    ;;
-	"-l")
-	    ctheme="light"
-    ;;
-	"-n")
-	    check_false $name
-	    
-	    import=false
-	    name=true
-	    override=false
-	    random=false
-
-            i=$(( $i + 1 ))
-	    check_param ${args[$i]}
-
-	    theme=${args[$i]}
-        ;;
-	"-o")
-	    check_false $override
-	    
-	    name=false
-	    override=true
-	    random=true
-
-	    create=true
-        ;;
-	"-r")
-	    check_false $random
-	    
-	    import=false
-	    name=false
-	    override=false
-	    random=true
-
-            if find "$dir" -mindepth 1 | read
-	    then
-                path=`shuf -n1 -e ${dir}/*`
-		theme=$(basename "$path")
-            else
-	        quit "Sorry, there is no created theme yet"
-            fi
-        ;;
-	"-s")
-	    [ $# -gt 1 ] && quit "Invalid combination of arguments"
-        
-	    [ -z "$colr" ] && quit "You need to create a theme first"
-	    theme=`cat $colr | head -1 | awk '{ print $2}'`
-	    
-	    [ -z "$theme" ] && quit "You need to create a theme first"
-
-	    # Get the opposite of current theme
-	    ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
-	    ctheme=`[[ $ctheme == "dark" ]] && echo "light" || echo "dark"`
-	;;
-        *) 
-	    quit "Invalid argument, please try again"
-	;;
-        esac
-
-	i=$(( $i + 1 ))
-    done
-
-    # If $theme not set, get the last one
-    if [ -z "$theme" ]
-    then
-	if [ ! -f "$colr" ]
-	then
-	    echo "Please create a theme first"
-	    exit 1
-	else
-	    theme=`cat $colr | head -1 | awk '{ print $2}'`
-	fi
-    fi
-
-    # If ctheme not set, get the last one
-    [ -z "$ctheme" ] && ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
-
-    # If -o parameter check if also -i
-    if [[ -n "$override" && "$override" == true ]]
-    then
-	[[ -z "$import" || "$import" == false ]] && quit "The -o paramater requires the -i parameter"
-    # If theme already exists and no -o
-    elif [[ -n "$import" && "$import" == true ]]
-    then
-	if [ -d "${dir}/${theme}" ]
-	then
-	    echo "A theme with this name already exists, use -o to override"
-	    echo "Skipping the creation part..."
-	    create=false
-        else
-	    create=true
-	fi
-    fi
-}
-
-gen_colors() {
-    echo "Generating colors..."
-    [ $nb -lt 8 ] && echo "Sorry, nb must be greater or equal to 8" && exit 1
-    colors=($(convert $path +dither -colors $nb -unique-colors txt:- | grep -E -o " \#.{6}"))
-    [[ ${#colors[@]} != $nb ]] && quit "There was a problem generating the colors"
-}
-
-hex_to_hsv() {
-    c=$1
-	
-    # Each part of the color in [0-255]
-    R=$(( 16#${c:1:2} ))
-    G=$(( 16#${c:3:2} ))
-    B=$(( 16#${c:5:2} ))
-
-    max=`([ "$R" -gt "$B" ] && ([ "$R" -gt "$G" ] && echo $R)) || ([ "$G" -gt "$B" ] && echo $G) || echo $B`
-    min=`([ "$R" -lt "$B" ] && ([ "$R" -lt "$G" ] && echo $R)) || ([ "$G" -lt "$B" ] && echo $G) || echo $B`
-
-    R=$(( ( $R * 100 ) / 255 ))
-    G=$(( ( $G * 100 ) / 255 ))
-    B=$(( ( $B * 100 ) / 255 ))
-
-    max=$(( ( $max * 100 ) / 255 ))
-    min=$(( ( $min * 100 ) / 255 ))
-
-    delta=$(( $max - $min ))
-
-    V=$max
-
-    if [[ $delta == 0 ]]
-    then
-        H=0
-        S=0
-    else
-        [[ $max == 0 ]] && max=1
-        S=$(( ( $delta * 100 ) / $max ))
-
-        if [[ $R == $max ]]
-        then
-            H=$(( ( ( $G - $B ) * 100 ) / $delta ))
-        elif [[ $G == $max ]]
-        then
-            H=$(( 200 + ( ( ( $B - $R ) * 100 ) / $delta ) ))
-        else
-            H=$(( 400 + ( ( ( $R - $G ) * 100 ) / $delta ) ))
-        fi
-
-        H=$(( ( $H * 60 ) / 100 ))
-        [ $H -lt 0 ] && H=$(( $H + 360 ))
-    fi
-}
-
-hsv_to_hex() {
-    if [[ $S == 0 ]]
-    then
-        V=$(( ( $V * 255 ) / 100 ))
-        R=$V
-        G=$V
-        B=$V
-    else
-        C=$(( ( $V * $S ) / 100 ))
-
-        H=$(( ( $H * 100 ) / 60 ))
-
-        value=$(( ( H % 200 ) - 100 ))
-        # Absolute value
-        value=${value#-}
-
-        X=$(( ( $C * ( 100 - $value ) ) / 100 ))
-
-        m=$(( $V - $C ))
-
-        H=$(( $H / 100 ))
-        case $H in
-        0)
-            R=$C
-            G=$X
-            B=0
-        ;;
-        1)
-            R=$X
-            G=$C
-            B=0
-        ;;
-        2)
-            R=0
-            G=$C
-            B=$X
-        ;;
-        3)
-            R=0
-            G=$X
-            B=$C
-        ;;
-        4)
-            R=$X
-            G=0
-            B=$C
-        ;;
-        5)
-            R=$C
-            G=0
-            B=$X
-        ;;
-        esac
-
-	R=$(( ( ( $R + $m ) * 255 ) / 100 ))
-        G=$(( ( ( $G + $m ) * 255 ) / 100 ))
-        B=$(( ( ( $B + $m ) * 255 ) / 100 ))
-    fi
-
-    printf "#%02X%02X%02X" $R $G $B
-}
-
-# Check if two colors are similar
-areSimilar() {
-    color1=$1
-    color2=$2
-
-    R1=$(( 16#${color1:1:2} ))
-    G1=$(( 16#${color1:3:2} ))
-    B1=$(( 16#${color1:5:2} ))
-    
-    R2=$(( 16#${color2:1:2} ))
-    G2=$(( 16#${color2:3:2} ))
-    B2=$(( 16#${color2:5:2} ))
-
-    # Absolute values
-    diffR=$(( $R1 - $R2 ))
-    diffR=${diffR#-}
-    diffG=$(( $G1 - $G2 ))
-    diffG=${diffG#-}
-    diffB=$(( $B1 - $B2 ))
-    diffB=${diffB#-}
-
-    diff=$(( $diffR + $diffG + $diffB ))
-
-    ([ $diff -lt $diffValue ] && echo "true") || echo "false"
-}
-
-colorify() {
-    c=$1
-        
-    R=$(( 16#${c:1:2} ))
-    G=$(( 16#${c:3:2} ))
-    B=$(( 16#${c:5:2} ))
-
-    R=$(( $R + $2 ))
-    G=$(( $G + $3 ))
-    B=$(( $B + $4 ))
-
-    [ $R -lt 0 ] && R=0
-    [ $G -lt 0 ] && G=0
-    [ $B -lt 0 ] && B=0
-    
-    [ $R -gt 255 ] && R=255
-    [ $G -gt 255 ] && G=255
-    [ $B -gt 255 ] && B=255
- 
-    printf "#%02X%02X%02X" $R $G $B
-}
-
-# Check the similarity between red, green and blue
-# Done twice, once before and once after the tweaking
-checkSimilarities() {
-    inc=8
-    dec=$(( $inc * -1 ))
-    diffValue=$1
-
-    if [[ $(areSimilar $red $grn) == "true" && $(areSimilar $red $blu) == "true" ]]
-    then
-    	red=$(colorify $red $inc $dec $dec)
-    	grn=$(colorify $grn $dec $inc $dec)
-    	blu=$(colorify $blu $dec $dec $inc)
-    fi
-    if [[ $(areSimilar $red $grn) == "true" ]]
-    then
-    	red=$(colorify $red $inc $dec $dec)
-    	grn=$(colorify $grn $dec $inc $dec)
-    fi
-    if [[ $(areSimilar $red $blu) == "true" ]]
-    then
-    	red=$(colorify $red $inc $dec $dec)
-    	blu=$(colorify $blu $dec $dec $inc)
-    fi
-    if [[ $(areSimilar $grn $blu) == "true" ]]
-    then
-    	grn=$(colorify $grn $dec $inc $dec)
-    	blu=$(colorify $blu $dec $dec $inc)
-    fi
-}
-
-# Set the red-est, green-est and blue-est colors
-set_rgb() {
-    oldRpctg=-1000
-    oldGpctg=-1000
-    oldBpctg=-1000
-    
-    for (( i=$1; i<=$2; i++ ))
-    do
-        color=${colors[$i]}
-        
-	R=$(( 16#${color:1:2} ))
-        G=$(( 16#${color:3:2} ))
-        B=$(( 16#${color:5:2} ))
-        
-	#Rpctg=$(( ( $R - $G ) + ( $R - $B ) ))
-	#Gpctg=$(( ( ( $G - $R ) / 2 ) + ( $G - $B ) ))
-	#Bpctg=$(( ( ( $B - $G ) / 2 ) + ( $B - $R ) ))
-    
-	Rpctg=$(( ( $R - $G ) + ( $R - $B ) ))
-	Gpctg=$(( ( $G - $R ) + ( $G - $B ) ))
-	Bpctg=$(( ( $B - $G ) + ( $B - $R ) ))
-    
-	[ $Rpctg -gt $oldRpctg ] && oldRpctg=$Rpctg && red=$color
-	[ $Gpctg -gt $oldGpctg ] && oldGpctg=$Gpctg && grn=$color
-	[ $Bpctg -gt $oldBpctg ] && oldBpctg=$Bpctg && blu=$color
-    done
-
-    checkSimilarities 10
-}
-
-tweak_blk() {
-    blk=${colors[0]}
-    hex_to_hsv $blk
-    # If brightness is too high reduce it to 20%
-    [ $V -gt 20 ] && V=20 && blk=$(hsv_to_hex)
-
-    echo $blk
-}
-
-tweak_gry() {
-    hex_to_hsv $blk
-    V=$(( $V + $1 ))
-    gry=$(hsv_to_hex)
-
-    echo $gry
-}
-
-tweak_wht() {
-    wht=${colors[$(( $nb - 1 ))]}
-    hex_to_hsv $wht
-    # If brightness is too low increase it to 70%
-    [ $V -lt 70 ] && V=70
-    # If saturation is too high reduce it to 20%
-    [ $S -gt 20 ] && S=20
-    wht=$(hsv_to_hex)
-
-    echo $wht
-}
-
-tweak_rgb_dark() {
-    hex_to_hsv $1
-    [ $V -lt 60 ] && V=60
-    [ $S -lt 90 ] && S=$(( $S + 10 ))
-    [ $V -gt 80 ] && V=80
-    hsv_to_hex
-}
-
-tweak_rgb_light() {
-    hex_to_hsv $1
-    [ $V -gt 60 ] && V=60
-    [ $S -lt 90 ] && S=$(( $S + 10 ))
-    [ $V -lt 40 ] && V=40
-    hsv_to_hex
-}
-
-tweak_dark() {
-    echo "Tweaking dark colors..."
-    
-    #blk
-    blk=$(tweak_blk)
-
-    #gry
-    gry=$(tweak_gry 30)
-
-    #wht
-    wht=$(tweak_wht)
-
-    half=$(( ( $nb / 2 ) - 1 ))
-    last=$(( $nb - 2 ))
-   
-    set_rgb $half $last
-
-    red=$(tweak_rgb_dark $red)
-    grn=$(tweak_rgb_dark $grn)
-    blu=$(tweak_rgb_dark $blu)
-    
-    checkSimilarities 30
-}
-
-tweak_light() {
-    echo "Tweaking light colors..."
-
-    #blk
-    blk=$(tweak_wht)
-    
-    #gry
-    gry=$(tweak_gry -30)
-
-    #wht
-    wht=$(tweak_blk)
-
-    first=1
-    half=$(( $nb / 2 ))
-   
-    set_rgb $first $half
-
-    red=$(tweak_rgb_light $red)
-    grn=$(tweak_rgb_light $grn)
-    blu=$(tweak_rgb_light $blu)
-    
-    checkSimilarities 30
-}
-
-gen_files() {
-    tweak_dark
-
-    echo "Creation of the dark theme file..."
-    echo "#define blk $blk" >  ${dir}/${theme}/dark
-    echo "#define gry $gry" >> ${dir}/${theme}/dark
-    echo "#define red $red" >> ${dir}/${theme}/dark
-    echo "#define grn $grn" >> ${dir}/${theme}/dark
-    echo "#define blu $blu" >> ${dir}/${theme}/dark
-    echo "#define wht $wht" >> ${dir}/${theme}/dark
-   
-    tweak_light
-
-    echo "Creation of the light theme file..."
-    echo "#define blk $blk" >  ${dir}/${theme}/light
-    echo "#define gry $gry" >> ${dir}/${theme}/light
-    echo "#define red $red" >> ${dir}/${theme}/light
-    echo "#define grn $grn" >> ${dir}/${theme}/light
-    echo "#define wht $wht" >> ${dir}/${theme}/light
-}
-
-gen_colr() {
     echo "! ${theme}" > $colr
     echo "! ${ctheme}" >> $colr
-    cat  "${dir}/${theme}/${ctheme}" >> $colr
+    
+    i=0
+    IFS=$'\n'
+    colors=()
+    for color in `cat ${dir}/${theme}/${ctheme} | grep '#'`
+    do
+        echo "#define ${names[$i]} $color" >> $colr
+        i=$(( $i + 1 ))
+        colors+=( $color )
+    done
+    IFS=$' '
+    
+    blk=${colors[0]}
+    gry=${colors[1]}
+    red=${colors[2]}
+    grn=${colors[3]}
+    blu=${colors[4]}
+    wht=${colors[5]}
 }
 
 main() {
-    args $@
+    init
+
+    args
 
     # If new theme or -o paramater
     if [[ -n "$create" && "$create" == true ]]
     then
-	echo "Creating the theme..."
-        mkdir -p ${dir}/${theme}
-	cp $path ${dir}/${theme}/wal.${ext} &> /dev/null
+        init_folder
 
-	gen_colors
+	    gen_colors
 
-	gen_files
+        set_colors
+
+        tweak_colors
+
+        check_colors
+
+        gen_files
     fi
 
-    gen_colr
+    load_colors
 
-    updt
+    update
+
+    notf "Theme: $theme"
 }
 
-main $@
+main

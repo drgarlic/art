@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+check_param() {
+    if [[ -z $1 || $1 == -* ]]
+    then
+        error "Please provide correct parameters"
+    fi  
+}
+
+check_false() {
+    if [[ -n $1 && $1 == false ]]
+    then
+        error "Invalid combination of arguments"
+    fi  
+}
+
+args() {
+    i=0 
+
+    while [[ $i != $nb_args ]]
+    do
+        case "${args[$i]}" in
+            "-a")
+                [ $nb_args -gt 1 ] && error "Invalid combination of arguments"
+
+                echo "List of available themes:"
+
+                for entry in ${dir}/*
+                do  
+                    echo $(basename $entry)
+                done
+        
+                quit
+            ;;  
+            "-c")
+                [ $nb_args -gt 1 ] && error "Invalid combination of arguments"
+        
+                theme=`cat $colr | head -1 | awk '{ print $2}'`
+                
+                [ -z "$theme" ] && error "Please set a theme first"
+                
+                echo "Current theme: $theme"
+                
+                quit
+            ;;
+            "-d")
+                ctheme="dark"
+            ;;
+            "-i")
+                check_false $import
+
+                import=true
+                name=false
+                random=false
+                switch=false
+
+                i=$(( $i + 1 ))
+
+                check_param ${args[$i]}
+                
+                path=`realpath ${args[$i]}`
+                [ ! -f "$path" ] && error "The provided file doesn't exist"
+
+                ext="${path##*.}"
+                [[ $ext != "jpg" && $ext != "png" ]] && error "There is a problem with the extension of your file"
+
+                i=$(( $i + 1 ))
+                check_param ${args[$i]}
+                theme=${args[$i]}
+            ;;
+            "-l")
+                ctheme="light"
+            ;;
+            "-n")
+                check_false $name
+
+                import=false
+                name=true
+                override=false
+                random=false
+
+                i=$(( $i + 1 ))
+                check_param ${args[$i]}
+                theme=${args[$i]}
+                
+                [ ! -d "${dir}/${theme}" ] && error "The theme named \"${theme}\" doesn't exist"
+            ;;
+            "-o")
+                check_false $override
+
+                #name=false
+                override=true
+                #random=false
+            ;;
+            "-r")
+                check_false $random
+
+                import=false
+                name=false
+                override=false
+                random=true
+
+                if find "$dir" -mindepth 1 | read
+                then
+                    path=`shuf -n1 -e ${dir}/*`
+                    theme=$(basename "$path")
+                else
+                    error "There are no created themes yet"
+                fi
+            ;;
+            "-s")
+                [ $nb_args -gt 1 ] && error "Invalid combination of arguments"
+
+                ([ -z "$colr" ] || [ ! -f "$colr" ]) && error "You need to create a theme first"
+                theme=`cat $colr | head -1 | awk '{ print $2}'`
+                [ -z "$theme" ] && error "You need to create a theme first"
+                [ ! -d "${dir}/${theme}" ] && error "The theme named \"${theme}\" doesn't exist"
+
+                # Get the opposite colors of the current theme
+                ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
+                ctheme=`[[ $ctheme == "dark" ]] && echo "light" || echo "dark"`
+            ;;
+            *)
+                error "Invalid argument, please try again"
+            ;;
+        esac
+
+        i=$(( $i + 1 ))
+    done
+
+    # If $theme not set, get the last one
+    if [ -z "$theme" ]
+    then
+        if [ ! -f "$colr" ]
+        then
+            quit "Please create a theme first"
+        else
+            theme=`cat $colr | head -1 | awk '{ print $2}'`
+            [ ! -d ${dir}/${theme} ] && error "Couldn't find the theme"
+        fi
+    fi
+
+    # If ctheme not set, get the last one
+    [ -z "$ctheme" ] && ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
+    [ -z "$ctheme" ] && ctheme="dark"
+
+    # If -o parameter check if also -i
+    if [[ -n "$override" && "$override" == true ]]
+    then
+        [[ -z "$import" || "$import" == false ]] && error "The -o paramater requires the -i parameter"
+        create=true
+    # If theme already exists and no -o
+    elif [[ -n "$import" && "$import" == true ]]
+    then
+        if [ -d "${dir}/${theme}" ]
+        then
+            echo "A theme with this name already exists, use -o to override"
+            echo "Skipping the creation part..."
+            create=false
+        else
+            create=true
+        fi
+    fi
+}
