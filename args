@@ -7,6 +7,19 @@ check_param() {
     fi  
 }
 
+unsplash() {
+    echo -e "Downloading the wallpaper..."
+
+    theme="unsplash"
+    path="${dir}/.wal.jpg"
+
+    wget -O $path "https://source.unsplash.com/random/?${search_term}" -q || error "Coudn't connect to unsplash's servers"
+    ext="${path##*.}"
+
+    create="true"
+    override="true"
+}
+
 args() {
     i=0 
 
@@ -14,7 +27,7 @@ args() {
     do
         case "${args[$i]}" in
             "-a")
-                echo -e "\nList of available themes:"
+                echo -e "List of available themes:"
 
                 for entry in ${dir}/*
                 do  
@@ -30,6 +43,7 @@ args() {
             ;;
             "-d")
                 [ -n "$ctheme" ] && error "Invalid combination of arguments"
+
                 ctheme="dark"
             ;;
             "-i")
@@ -38,7 +52,7 @@ args() {
                 i=$(( $i + 1 ))
 
                 check_param ${args[$i]}
-                
+
                 path=`realpath ${args[$i]}`
                 [ ! -f "$path" ] && error "The provided file doesn't exist"
 
@@ -48,9 +62,11 @@ args() {
                 i=$(( $i + 1 ))
                 check_param ${args[$i]}
                 theme=${args[$i]}
+                create="true"
             ;;
             "-l")
                 [ -n "$ctheme" ] && error "Invalid combination of arguments"
+
                 ctheme="light"
             ;;
             "-n")
@@ -85,6 +101,15 @@ args() {
                 ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
                 ctheme=`[[ $ctheme == "dark" ]] && echo "light" || echo "dark"`
             ;;
+            "-u")
+                [ -n "$theme" ] && error "Invalid combination of arguments"
+
+                url="random"
+                i=$(( $i + 1 ))
+                search_term=${args[$i]}
+                [[ -z $search_term || $search_term == -* ]] && i=$(( $i - 1 )) && search_term=""
+                unsplash
+            ;;
             *)
                 error "Invalid argument, please try again"
             ;;
@@ -112,21 +137,9 @@ args() {
     [ -z "$ctheme" ] && ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
     [ -z "$ctheme" ] && ctheme="dark"
 
-    # If -o parameter check if also -i
-    if [[ -n "$override" && "$override" == true ]]
+    # If theme already exists and no -o, stop program
+    if [[ "$create" == "true" && "$override" != "true" ]]
     then
-        [[ -z "$import" || "$import" == false ]] && error "The -o paramater requires the -i parameter"
-        create=true
-    # If theme already exists and no -o
-    elif [[ -n "$import" && "$import" == true ]]
-    then
-        if [ -d "${dir}/${theme}" ]
-        then
-            echo "A theme with this name already exists, use -o to override"
-            echo "Skipping the creation part..."
-            create=false
-        else
-            create=true
-        fi
+        [ -d "${dir}/${theme}" ] && error "A theme with this name already exists, use -o to override"
     fi
 }

@@ -17,6 +17,8 @@ init() {
     out_of_bound2=245
     # arrays
     names=( "blk" "gry" "red" "grn" "blu" "wht" )
+    
+    mkdir -p ${dir}
 }
 
 init_folder() {
