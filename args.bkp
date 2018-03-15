@@ -7,6 +7,13 @@ check_param() {
     fi  
 }
 
+check_false() {
+    if [[ -n $1 && $1 == false ]]
+    then
+        error "Invalid combination of arguments"
+    fi  
+}
+
 args() {
     i=0 
 
@@ -20,20 +27,28 @@ args() {
                 do  
                     echo $(basename $entry)
                 done
+        
+                quit
             ;;  
             "-c")
-                theme_name=`cat $colr | head -1 | awk '{ print $2}'`
+                theme=`cat $colr | head -1 | awk '{ print $2}'`
                 
-                [ -z "$theme_name" ] && error "Please set a theme first"
+                [ -z "$theme" ] && error "Please set a theme first"
                 
-                echo "Current theme: $theme_name"
+                echo "Current theme: $theme"
+                
+                quit
             ;;
             "-d")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
                 ctheme="dark"
             ;;
             "-i")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+                check_false $import
+
+                import=true
+                name=false
+                random=false
+                switch=false
 
                 i=$(( $i + 1 ))
 
@@ -50,11 +65,15 @@ args() {
                 theme=${args[$i]}
             ;;
             "-l")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
                 ctheme="light"
             ;;
             "-n")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+                check_false $name
+
+                import=false
+                name=true
+                override=false
+                random=false
 
                 i=$(( $i + 1 ))
                 check_param ${args[$i]}
@@ -63,10 +82,19 @@ args() {
                 [ ! -d "${dir}/${theme}" ] && error "The theme named \"${theme}\" doesn't exist"
             ;;
             "-o")
+                check_false $override
+
+                #name=false
                 override=true
+                #random=false
             ;;
             "-r")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+                check_false $random
+
+                import=false
+                name=false
+                override=false
+                random=true
 
                 if find "$dir" -mindepth 1 | read
                 then
@@ -77,9 +105,12 @@ args() {
                 fi
             ;;
             "-s")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
+                [ $nb_args -gt 1 ] && error "Invalid combination of arguments"
 
-                [ ! -f "$colr" ] && error "You need to create a theme first"
+                ([ -z "$colr" ] || [ ! -f "$colr" ]) && error "You need to create a theme first"
+                theme=`cat $colr | head -1 | awk '{ print $2}'`
+                [ -z "$theme" ] && error "You need to create a theme first"
+                [ ! -d "${dir}/${theme}" ] && error "The theme named \"${theme}\" doesn't exist"
 
                 # Get the opposite colors of the current theme
                 ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
@@ -92,9 +123,6 @@ args() {
 
         i=$(( $i + 1 ))
     done
-
-    # If arguments but no changes, quit
-    [[ $i != 0 ]] && [ -z "$theme" ] && [ -z "$ctheme" ] && quit
 
     # If $theme not set, get the last one
     if [ -z "$theme" ]
