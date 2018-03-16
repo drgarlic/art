@@ -1,12 +1,12 @@
-#!/usr/bin/env bash
+#/usr/bin/env bash
 #
 # Description: Theme generator
 # Dependency: imagemagick
 #
 # TODO:
-# - unsplash
-# - redo args
-# - cleanup files
+# - loop in -r
+# - quiet mode
+# - link support
 
 # Get arguments
 args=($@)
@@ -32,8 +32,12 @@ quit() {
     exit 0
 }
 
+print() {
+    [[ "$quiet" != "true" ]] && echo -e "$1"
+}
+
 load_colors() {
-    echo "Loading the theme..."
+    print "Loading the theme..."
 
     echo "! ${theme}" > $colr
     echo "! ${ctheme}" >> $colr
@@ -82,7 +86,7 @@ main() {
 
     update
 
-    notf "Theme: $theme"
+    [[ "$quiet" != "true" ]] && notf "Theme: $theme"
 }
 
 main

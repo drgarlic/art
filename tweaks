@@ -39,7 +39,7 @@ tweak_wht() {
 }
 
 tweak_colors() {
-    echo "Tweaking colors..."
+    print "Tweaking colors..."
 
     dark[0]=$(tweak_blk ${dark[0]})
     dark[1]=$(tweak_gry ${dark[0]} $diff_gry_blk)

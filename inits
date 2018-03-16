@@ -9,6 +9,7 @@ init() {
     # Number of colors to generate from picture
     nb=10
 
+    resolution=`xrandr | grep "*" | awk '{ print $1 }'`
     min_diff_rgb=40
     # Used in the tweak_gry function
     diff_gry_blk=30
@@ -22,7 +23,7 @@ init() {
 }
 
 init_folder() {
-    echo "Creating the theme..."
+    print "Creating the theme..."
         
     mkdir -p ${dir}/${theme}
     cp $path ${dir}/${theme}/wal.${ext} &> /dev/null

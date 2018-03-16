@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-echo "Updating xrdb..."
+print "Updating xrdb..."
 xrdb ${HOME}/.Xresources
 
-echo "Updating 2bwm..."
-xdotool key "ctrl+super+r"
+print "Updating 2bwm..."
+xdotool key "ctrl+super+r" &> /dev/null
 
-echo "Updating polybar..."
+print "Updating polybar..."
 polybar-msg cmd restart &> /dev/null
 
-echo "Updating dunst..."
+print "Updating dunst..."
 killall dunst &> /dev/null
 dunst \
     -lb "$blk" \

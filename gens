@@ -3,11 +3,10 @@
 gen_colors() {
     [ $nb -lt 8 ] && error "nb must be greater or equal to 8"
 
-    echo "Generating colors..."
+    print "Generating colors..."
     colors=($(convert $path +dither -colors $nb -unique-colors txt:- | grep -E -o " \#.{6}"))
 
     size=${#colors[@]}
-    [[ $size != $nb ]] && error "Couldn't generate enough colors"
 }
 
 gen_file() {
@@ -23,7 +22,7 @@ gen_file() {
 }
 
 gen_files() {
-    echo "Generating files..."
+    print "Generating files..."
 
     gen_file "dark" "${dark[@]}"
     gen_file "light" "${light[@]}"

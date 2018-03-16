@@ -50,7 +50,7 @@ check_themes() {
 }
 
 check_colors() {
-    echo "Checking colors..."
+    print "Checking colors..."
 
     check_themes "${dark[@]}"
     dark=("${array[@]}")

@@ -61,12 +61,12 @@ update_terms() {
 }
 
 update() {
-    echo "Updating the wallpaper..."
+    print "Updating the wallpaper..."
     wal=`ls ${dir}/${theme} | grep "wal"`
     [ -n "$wal" ] && feh --bg-fill ${dir}/${theme}/${wal}
 
     . EDITME
 
-    echo "Updating open terminals..."
+    print "Updating open terminals..."
     update_terms
 }

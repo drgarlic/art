@@ -45,7 +45,7 @@ set_themes() {
 }
 
 set_colors() {
-    echo "Setting colors..."
+    print "Setting colors..."
     
     set_themes "dark"
     dark=("${array[@]}")

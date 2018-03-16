@@ -8,16 +8,17 @@ check_param() {
 }
 
 unsplash() {
-    echo -e "Downloading the wallpaper..."
+    print "Downloading the wallpaper..."
 
     theme="unsplash"
-    path="${dir}/.wal.jpg"
-
-    wget -O $path "https://source.unsplash.com/random/?${search_term}" -q || error "Coudn't connect to unsplash's servers"
+    path="${dir}/.tempo.jpg"
+	
+    wget -O $path "https://source.unsplash.com/random/${resolution}/?${search_term}" -q || error "Coudn't connect to unsplash's servers"
+    
     ext="${path##*.}"
 
-    create="true"
-    override="true"
+    create=true
+    override=true
 }
 
 args() {
@@ -27,11 +28,11 @@ args() {
     do
         case "${args[$i]}" in
             "-a")
-                echo -e "List of available themes:"
+                print "List of available themes:"
 
                 for entry in ${dir}/*
                 do  
-                    echo $(basename $entry)
+                    print $(basename $entry)
                 done
             ;;  
             "-c")
@@ -39,7 +40,7 @@ args() {
                 
                 [ -z "$theme_name" ] && error "Please set a theme first"
                 
-                echo "Current theme: $theme_name"
+                print "Current theme: $theme_name"
             ;;
             "-d")
                 [ -n "$ctheme" ] && error "Invalid combination of arguments"
@@ -81,21 +82,30 @@ args() {
             "-o")
                 override=true
             ;;
+            "-q")
+                quiet=true
+            ;;
             "-r")
                 [ -n "$theme" ] && error "Invalid combination of arguments"
 
-                if find "$dir" -mindepth 1 | read
-                then
-                    path=`shuf -n1 -e ${dir}/*`
-                    theme=$(basename "$path")
-                else
-                    error "There are no created themes yet"
-                fi
+                old_theme=`cat $colr | head -1 | awk '{ print $2}' || echo ""`
+                theme="$old_theme"
+                
+                while [[ "$theme" == "$old_theme" ]]
+                do
+                    if find "$dir" -mindepth 1 | read
+                    then
+                        path=`shuf -n1 -e ${dir}/*`
+                        theme=$(basename "$path")
+                    else
+                        error "There are no created themes yet"
+                    fi
+                done
             ;;
             "-s")
                 [ -n "$ctheme" ] && error "Invalid combination of arguments"
 
-                [ ! -f "$colr" ] && error "You need to create a theme first"
+                [ ! -f "$colr" ] && error "Please create a theme first"
 
                 # Get the opposite colors of the current theme
                 ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
