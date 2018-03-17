@@ -28,14 +28,21 @@ args() {
     do
         case "${args[$i]}" in
             "-a")
-                print "List of available themes:"
-
-                for entry in ${dir}/*
-                do  
-                    print $(basename $entry)
-                done
+                if find "$dir" -mindepth 1 | read
+                then
+                    print "List of available themes:"
+                    
+                    for entry in ${dir}/*
+                    do  
+                        print $(basename $entry)
+                    done
+                else
+                    error "Please create a theme first"
+                fi
             ;;  
             "-c")
+                [ ! -f "$colr" ] && error "Please set a theme first"
+
                 theme_name=`cat $colr | head -1 | awk '{ print $2}'`
                 
                 [ -z "$theme_name" ] && error "Please set a theme first"
@@ -46,6 +53,11 @@ args() {
                 [ -n "$ctheme" ] && error "Invalid combination of arguments"
 
                 ctheme="dark"
+            ;;
+            "-h")
+                print_help
+                
+                quit
             ;;
             "-i")
                 [ -n "$theme" ] && error "Invalid combination of arguments"
@@ -88,6 +100,7 @@ args() {
             "-r")
                 [ -n "$theme" ] && error "Invalid combination of arguments"
 
+                [ ! -f "$colr" ] && error "Please create a theme first"
                 old_theme=`cat $colr | head -1 | awk '{ print $2}' || echo ""`
                 theme="$old_theme"
                 
@@ -121,7 +134,7 @@ args() {
                 unsplash
             ;;
             *)
-                error "Invalid argument, please try again"
+                error "Invalid argument, please try again or add -h for help"
             ;;
         esac
 
@@ -136,7 +149,7 @@ args() {
     then
         if [ ! -f "$colr" ]
         then
-            quit "Please create a theme first"
+            error "Please create a theme first"
         else
             theme=`cat $colr | head -1 | awk '{ print $2}'`
             [ ! -d ${dir}/${theme} ] && error "Couldn't find the theme"

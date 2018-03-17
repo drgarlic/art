@@ -10,9 +10,9 @@ init() {
     nb=10
 
     resolution=`xrandr | grep "*" | awk '{ print $1 }'`
-    min_diff_rgb=40
+    min_diff_rgb=52
     # Used in the tweak_gry function
-    diff_gry_blk=30
+    diff_gry_blk=36
     # Used in the out_of_bound function
     out_of_bound1=10
     out_of_bound2=245
