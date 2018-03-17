@@ -1,5 +1,10 @@
 # art
 
+
+## Caution
+
+**You will most likely have to edit the `EDITME` file since this script is at this moment only adapted for my dotfiles.**
+
 ## What is it ?
 
 `art` is a theme generator that takes an image, generates colors from it and creates two themes from those colors, a dark and a light one.
