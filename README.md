@@ -23,6 +23,12 @@ Each generated theme is saved in a special folder, that can be accessed at any t
 
 ## How to install ?
 
+### Dependencies 
+
+`imagemagick`: Used to generate the first array of colors
+
+### Instructions
+
 ```
 cd WHEREVER_YOU_WANT
 git clone https://github.com/gawlk/art.git
