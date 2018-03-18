@@ -15,8 +15,8 @@ rgb_to_hex() {
 hex_to_hsv() {
     hex_to_rgb "$1"
 
-    max=`([[ $R -gt $B ]] && ([[ $R -gt $G ]] && echo "$R")) || ([[ $G -gt $B ]] && echo "$G") || echo "$B"`
-    min=`([[ $R -lt $B ]] && ([[ $R -lt $G ]] && echo "$R")) || ([[ $G -lt $B ]] && echo "$G") || echo "$B"`
+    max=$( ([[ $R -gt $B ]] && ([[ $R -gt $G ]] && echo "$R")) || ([[ $G -gt $B ]] && echo "$G") || echo "$B" )
+    min=$( ([[ $R -lt $B ]] && ([[ $R -lt $G ]] && echo "$R")) || ([[ $G -lt $B ]] && echo "$G") || echo "$B" )
 
     R=$(( ( R * 100 ) / 255 ))
     G=$(( ( G * 100 ) / 255 ))

@@ -46,12 +46,11 @@ load_colors() {
     i=0
     IFS=$'\n'
     colors=()
-    for color in $(grep '#' "$dir/$theme/$ctheme")
-    do
+    while read -r color; do
         echo "#define ${names[$i]} $color" >> "$colr"
         (( i++ ))
         colors+=( $color )
-    done
+    done < <(grep '#' "$dir/$theme/$ctheme")
     IFS=$' '
     
     blk=${colors[0]}

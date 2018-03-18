@@ -9,7 +9,7 @@ init() {
     # Number of colors to generate from picture
     nb=10
 
-    resolution=$(xrandr | grep "*" | awk '{ print $1 }')
+    resolution=$(xrandr | grep "\*" | awk '{ print $1 }')
     min_diff_rgb=52
     # Used in the tweak_gry function
     diff_gry_blk=36
