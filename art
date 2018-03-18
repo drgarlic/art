@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 #
 # Description: Theme generator
 # Dependency: imagemagick
@@ -34,22 +34,22 @@ quit() {
 }
 
 print() {
-    [[ "$quiet" != "true" ]] && echo -e "$1"
+    [[ $quiet != "true" ]] && echo -e "$1"
 }
 
 load_colors() {
     print "Loading the theme..."
 
-    echo "! ${theme}" > $colr
-    echo "! ${ctheme}" >> $colr
+    echo "! $theme" > "$colr"
+    echo "! $ctheme" >> "$colr"
     
     i=0
     IFS=$'\n'
     colors=()
-    for color in `cat ${dir}/${theme}/${ctheme} | grep '#'`
+    for color in $(grep '#' "$dir/$theme/$ctheme")
     do
-        echo "#define ${names[$i]} $color" >> $colr
-        i=$(( $i + 1 ))
+        echo "#define ${names[$i]} $color" >> "$colr"
+        (( i++ ))
         colors+=( $color )
     done
     IFS=$' '
@@ -68,7 +68,7 @@ main() {
     args
 
     # If new theme or -o paramater
-    if [[ -n "$create" && "$create" == true ]]
+    if [[ -n $create && $create == true ]]
     then
         init_folder
 
@@ -87,7 +87,7 @@ main() {
 
     update
 
-    [[ "$quiet" != "true" ]] && notf "Theme: $theme"
+    [[ $quiet != "true" ]] && notify-send "Theme: $theme"
 }
 
 main

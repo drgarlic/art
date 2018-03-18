@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 print "Updating xrdb..."
-xrdb ${HOME}/.Xresources
+xrdb "$HOME/.Xresources"
 
 print "Updating 2bwm..."
 xdotool key "ctrl+super+r" &> /dev/null

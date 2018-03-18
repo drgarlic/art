@@ -62,8 +62,8 @@ update_terms() {
 
 update() {
     print "Updating the wallpaper..."
-    wal=`ls ${dir}/${theme} | grep "wal"`
-    [ -n "$wal" ] && feh --bg-fill ${dir}/${theme}/${wal}
+    wal=$(ls "$dir/$theme" | grep "wal")
+    [[ -n $wal ]] && feh --bg-fill "$dir/$theme/$wal"
 
     . EDITME
 

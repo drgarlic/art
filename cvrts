@@ -8,24 +8,24 @@ hex_to_rgb() {
 }
 
 rgb_to_hex() {
-    hex=`printf "#%02X%02X%02X" $R $G $B`
-    echo ${hex,,}
+    hex=$(printf "#%02X%02X%02X" "$R" "$G" "$B")
+    echo "${hex,,}"
 }
 
 hex_to_hsv() {
-    hex_to_rgb $1
+    hex_to_rgb "$1"
 
-    max=`([ "$R" -gt "$B" ] && ([ "$R" -gt "$G" ] && echo $R)) || ([ "$G" -gt "$B" ] && echo $G) || echo $B`
-    min=`([ "$R" -lt "$B" ] && ([ "$R" -lt "$G" ] && echo $R)) || ([ "$G" -lt "$B" ] && echo $G) || echo $B`
+    max=`([[ $R -gt $B ]] && ([[ $R -gt $G ]] && echo "$R")) || ([[ $G -gt $B ]] && echo "$G") || echo "$B"`
+    min=`([[ $R -lt $B ]] && ([[ $R -lt $G ]] && echo "$R")) || ([[ $G -lt $B ]] && echo "$G") || echo "$B"`
 
-    R=$(( ( $R * 100 ) / 255 ))
-    G=$(( ( $G * 100 ) / 255 ))
-    B=$(( ( $B * 100 ) / 255 ))
+    R=$(( ( R * 100 ) / 255 ))
+    G=$(( ( G * 100 ) / 255 ))
+    B=$(( ( B * 100 ) / 255 ))
 
-    max=$(( ( $max * 100 ) / 255 ))
-    min=$(( ( $min * 100 ) / 255 ))
+    max=$(( ( max * 100 ) / 255 ))
+    min=$(( ( min * 100 ) / 255 ))
 
-    delta=$(( $max - $min ))
+    delta=$(( max - min ))
 
     V=$max
 
@@ -35,45 +35,45 @@ hex_to_hsv() {
         S=0
     else
         [[ $max == 0 ]] && max=1
-        S=$(( ( $delta * 100 ) / $max ))
+        S=$(( ( delta * 100 ) / max ))
 
-        if [[ $R == $max ]]
+        if [[ $R == "$max" ]]
         then
-            H=$(( ( ( $G - $B ) * 100 ) / $delta ))
-        elif [[ $G == $max ]]
+            H=$(( ( ( G - B ) * 100 ) / delta ))
+        elif [[ $G == "$max" ]]
         then
-            H=$(( 200 + ( ( ( $B - $R ) * 100 ) / $delta ) ))
+            H=$(( 200 + ( ( ( B - R ) * 100 ) / delta ) ))
         else
-            H=$(( 400 + ( ( ( $R - $G ) * 100 ) / $delta ) ))
+            H=$(( 400 + ( ( ( R - G ) * 100 ) / delta ) ))
         fi
 
-        H=$(( ( $H * 60 ) / 100 ))
-        [ $H -lt 0 ] && H=$(( $H + 360 ))
+        H=$(( ( H * 60 ) / 100 ))
+        [[ $H -lt 0 ]] && H=$(( H + 360 ))
     fi
 }
 
 hsv_to_hex() {
     if [[ $S == 0 ]]
     then
-        V=$(( ( $V * 255 ) / 100 ))
+        V=$(( ( V * 255 ) / 100 ))
         R=$V
         G=$V
         B=$V
     else
-        C=$(( ( $V * $S ) / 100 ))
+        C=$(( ( V * S ) / 100 ))
         
-        H=$(( ( $H * 100 ) / 60 ))
+        H=$(( ( H * 100 ) / 60 ))
         
         value=$(( ( H % 200 ) - 100 ))
         # Absolute value
         value=${value#-}
         
-        X=$(( ( $C * ( 100 - $value ) ) / 100 ))
+        X=$(( ( C * ( 100 - value ) ) / 100 ))
         
-        m=$(( $V - $C ))
+        m=$(( V - C ))
         
-        H=$(( $H / 100 ))
-        case $H in
+        H=$(( H / 100 ))
+        case "$H" in
         0)
             R=$C
             G=$X
@@ -106,10 +106,10 @@ hsv_to_hex() {
         ;;  
         esac
         
-        R=$(( ( ( $R + $m ) * 255 ) / 100 ))
-        G=$(( ( ( $G + $m ) * 255 ) / 100 ))
-        B=$(( ( ( $B + $m ) * 255 ) / 100 ))
+        R=$(( ( ( R + m ) * 255 ) / 100 ))
+        G=$(( ( ( G + m ) * 255 ) / 100 ))
+        B=$(( ( ( B + m ) * 255 ) / 100 ))
     fi  
     
-    echo $(rgb_to_hex)
+    rgb_to_hex
 }

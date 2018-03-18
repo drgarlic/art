@@ -1,57 +1,57 @@
 #!/usr/bin/env bash
 
 tweak_blk() {
-    hex_to_hsv $1
+    hex_to_hsv "$1"
     # If brightness is too high reduce it to 20%
-    [ $V -gt 20 ] && V=20
-    echo $(hsv_to_hex)
+    [[ $V -gt 20 ]] && V=20
+    hsv_to_hex
 }
 
 tweak_gry() {
-    hex_to_hsv $1
-    V=$(( $V + $2 ))
-    echo $(hsv_to_hex)
+    hex_to_hsv "$1"
+    V=$(( V + $2 ))
+    hsv_to_hex
 }
 
 tweak_rgb_dark() {
-    hex_to_hsv $1
-    [ $V -lt 60 ] && V=60
-    [ $S -lt 90 ] && S=$(( $S + 10 ))
-    [ $V -gt 80 ] && V=80
-    echo $(hsv_to_hex)
+    hex_to_hsv "$1"
+    [[ $V -lt 60 ]] && V=60
+    [[ $S -lt 90 ]] && (( S + 10 ))
+    [[ $V -gt 80 ]] && V=80
+    hsv_to_hex
 }
 
 tweak_rgb_light() {
-    hex_to_hsv $1
-    [ $V -gt 60 ] && V=60
-    [ $S -lt 90 ] && S=$(( $S + 10 ))
-    [ $V -lt 40 ] && V=40
-    echo $(hsv_to_hex)
+    hex_to_hsv "$1"
+    [[ $V -gt 60 ]] && V=60
+    [[ $S -lt 90 ]] && (( S + 10 ))
+    [[ $V -lt 40 ]] && V=40
+    hsv_to_hex
 }
 
 tweak_wht() {
-    hex_to_hsv $1
+    hex_to_hsv "$1"
     # If brightness is too low increase it to 70%
-    [ $V -lt 70 ] && V=70
+    [[ $V -lt 70 ]] && V=70
     # If saturation is too high reduce it to 20%
-    [ $S -gt 20 ] && S=20
-    echo $(hsv_to_hex)
+    [[ $S -gt 20 ]] && S=20
+    hsv_to_hex
 }
 
 tweak_colors() {
     print "Tweaking colors..."
 
-    dark[0]=$(tweak_blk ${dark[0]})
-    dark[1]=$(tweak_gry ${dark[0]} $diff_gry_blk)
-    dark[2]=$(tweak_rgb_dark ${dark[2]})
-    dark[3]=$(tweak_rgb_dark ${dark[3]})
-    dark[4]=$(tweak_rgb_dark ${dark[4]})
-    dark[5]=$(tweak_wht ${dark[5]})
+    dark[0]=$(tweak_blk "${dark[0]}")
+    dark[1]=$(tweak_gry "${dark[0]}" "$diff_gry_blk")
+    dark[2]=$(tweak_rgb_dark "${dark[2]}")
+    dark[3]=$(tweak_rgb_dark "${dark[3]}")
+    dark[4]=$(tweak_rgb_dark "${dark[4]}")
+    dark[5]=$(tweak_wht "${dark[5]}")
 
-    light[0]=$(tweak_wht ${light[0]})
-    light[1]=$(tweak_gry ${light[0]} $(( $diff_gry_blk * -1 )))
-    light[2]=$(tweak_rgb_light ${light[2]})
-    light[3]=$(tweak_rgb_light ${light[3]})
-    light[4]=$(tweak_rgb_light ${light[4]})
-    light[5]=$(tweak_blk ${light[5]})
+    light[0]=$(tweak_wht "${light[0]}")
+    light[1]=$(tweak_gry "${light[0]}" "$(( diff_gry_blk * -1 ))")
+    light[2]=$(tweak_rgb_light "${light[2]}")
+    light[3]=$(tweak_rgb_light "${light[3]}")
+    light[4]=$(tweak_rgb_light "${light[4]}")
+    light[5]=$(tweak_blk "${light[5]}")
 }
