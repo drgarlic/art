@@ -8,15 +8,15 @@ set_rgb() {
 
     for (( i=$1; i<=$2; i++ ))
     do
-        hex_to_rgb ${colors[$i]}
+        hex_to_rgb "${colors[$i]}"
 
-        Rpctg=$(( ( $R - $G ) + ( $R - $B ) ))
-        Gpctg=$(( ( $G - $R ) + ( $G - $B ) ))
-        Bpctg=$(( ( $B - $G ) + ( $B - $R ) ))
+        Rpctg=$(( ( R - G ) + ( R - B ) ))
+        Gpctg=$(( ( G - R ) + ( G - B ) ))
+        Bpctg=$(( ( B - G ) + ( B - R ) ))
 
-        [ $Rpctg -gt $oldRpctg ] && oldRpctg=$Rpctg && red=${colors[$i]}
-        [ $Gpctg -gt $oldGpctg ] && oldGpctg=$Gpctg && grn=${colors[$i]}
-        [ $Bpctg -gt $oldBpctg ] && oldBpctg=$Bpctg && blu=${colors[$i]}
+        [[ $Rpctg -gt $oldRpctg ]] && oldRpctg=$Rpctg && red=${colors[$i]}
+        [[ $Gpctg -gt $oldGpctg ]] && oldGpctg=$Gpctg && grn=${colors[$i]}
+        [[ $Bpctg -gt $oldBpctg ]] && oldBpctg=$Bpctg && blu=${colors[$i]}
     done
 }
 
@@ -25,14 +25,14 @@ set_themes() {
     if [[ $1 == "dark" ]]
     then
         blk=${colors[0]}
-        wht=${colors[$(( $nb - 1 ))]}
-        bound1=$(( ( $nb / 2 ) - 1 ))
-        bound2=$(( $nb - 2 ))
+        wht=${colors[$(( nb - 1 ))]}
+        bound1=$(( ( nb / 2 ) - 1 ))
+        bound2=$(( nb - 2 ))
     else
-        blk=${colors[$(( $nb - 1 ))]}
+        blk=${colors[$(( nb - 1 ))]}
         wht=${colors[0]}
         bound1=0
-        bound2=$(( $nb / 2 ))
+        bound2=$(( nb / 2 ))
     fi
 
     array[0]=$blk

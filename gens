@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 gen_colors() {
-    [ $nb -lt 8 ] && error "nb must be greater or equal to 8"
+    [[ $nb -lt 8 ]] && error "nb must be greater or equal to 8"
 
     print "Generating colors..."
-    colors=($(convert $path +dither -colors $nb -unique-colors txt:- | grep -E -o " \#.{6}"))
+    colors=($(convert "$path" +dither -colors "$nb" -unique-colors txt:- | grep -E -o " \#.{6}"))
 
     size=${#colors[@]}
 }
@@ -13,11 +13,11 @@ gen_file() {
     var="${1}"
     array=("${@}")
 
-    echo -e "! ${var}" > ${dir}/${theme}/${var}
+    echo -e "! ${var}" > "$dir/$theme/$var"
 
     for i in {0..5}
     do
-        echo -e "! ${names[$i]}\n${array[$(( $i + 1 ))]}" >> ${dir}/${theme}/${var}
+        echo -e "! ${names[$i]}\n${array[$(( i + 1 ))]}" >> "$dir/$theme/$var"
     done
 }
 

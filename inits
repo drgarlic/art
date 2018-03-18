@@ -2,14 +2,14 @@
 
 init() {
     # Set PATH variables
-    bin="${HOME}/.bin"
-    colr="${HOME}/.colors"
-    dir="${HOME}/.themes"
-    lock="${bin}/lock.png"
+    bin="$HOME/.bin"
+    colr="$HOME/.colors"
+    dir="$HOME/.themes"
+    lock="$bin/lock.png"
     # Number of colors to generate from picture
     nb=10
 
-    resolution=`xrandr | grep "*" | awk '{ print $1 }'`
+    resolution=$(xrandr | grep "\*" | awk '{ print $1 }')
     min_diff_rgb=52
     # Used in the tweak_gry function
     diff_gry_blk=36
@@ -19,12 +19,12 @@ init() {
     # arrays
     names=( "blk" "gry" "red" "grn" "blu" "wht" )
     
-    mkdir -p ${dir}
+    mkdir -p "$dir"
 }
 
 init_folder() {
     print "Creating the theme..."
         
-    mkdir -p ${dir}/${theme}
-    cp $path ${dir}/${theme}/wal.${ext} &> /dev/null
+    mkdir -p "$dir/$theme"
+    cp "$path" "$dir/$theme/wal.$ext" &> /dev/null
 }

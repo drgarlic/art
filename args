@@ -11,11 +11,11 @@ unsplash() {
     print "Downloading the wallpaper..."
 
     theme="unsplash"
-    path="${dir}/.tempo.jpg"
+    path="$dir/.tempo.jpg"
 	
-    wget -O $path "https://source.unsplash.com/random/${resolution}/?${search_term}" -q || error "Coudn't connect to unsplash's servers"
+    wget -O "$path" "https://source.unsplash.com/random/${resolution}/?${search_term}" -q || error "Coudn't connect to unsplash's servers"
     
-    ext="${path##*.}"
+    ext=${path##*.}
 
     create=true
     override=true
@@ -24,113 +24,113 @@ unsplash() {
 args() {
     i=0 
 
-    while [[ $i != $nb_args ]]
+    while [[ $i != "$nb_args" ]]
     do
         case "${args[$i]}" in
-            "-a")
-                if find "$dir" -mindepth 1 | read
+            -a)
+                if find "$dir" -mindepth 1 | read -r
                 then
                     print "List of available themes:"
                     
-                    for entry in ${dir}/*
+                    for entry in "$dir/"*
                     do  
-                        print $(basename $entry)
+                        basename "$entry"
                     done
                 else
                     error "Please create a theme first"
                 fi
             ;;  
-            "-c")
-                [ ! -f "$colr" ] && error "Please set a theme first"
+            -c)
+                [[ ! -f $colr ]] && error "Please set a theme first"
 
-                theme_name=`cat $colr | head -1 | awk '{ print $2}'`
+                theme_name=$(head -1 < "$colr" | awk '{ print $2}')
                 
-                [ -z "$theme_name" ] && error "Please set a theme first"
+                [[ -z $theme_name ]] && error "Please set a theme first"
                 
                 print "Current theme: $theme_name"
             ;;
-            "-d")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
+            -d)
+                [[ -n $ctheme ]] && error "Invalid combination of arguments"
 
                 ctheme="dark"
             ;;
-            "-h")
+            -h)
                 print_help
                 
                 quit
             ;;
-            "-i")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+            -i)
+                [[ -n $theme ]] && error "Invalid combination of arguments"
 
-                i=$(( $i + 1 ))
+                (( i++ ))
 
-                check_param ${args[$i]}
+                check_param "${args[$i]}"
 
-                path=`realpath ${args[$i]}`
-                [ ! -f "$path" ] && error "The provided file doesn't exist"
+                path=$(realpath "${args[$i]}")
+                [[ ! -f $path ]] && error "The provided file doesn't exist"
 
                 ext="${path##*.}"
                 [[ $ext != "jpg" && $ext != "png" ]] && error "There is a problem with the extension of your file"
 
-                i=$(( $i + 1 ))
-                check_param ${args[$i]}
+                (( i++ ))
+                check_param "${args[$i]}"
                 theme=${args[$i]}
                 create="true"
             ;;
-            "-l")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
+            -l)
+                [[ -n $ctheme ]] && error "Invalid combination of arguments"
 
                 ctheme="light"
             ;;
-            "-n")
+            -n)
                 [ -n "$theme" ] && error "Invalid combination of arguments"
 
-                i=$(( $i + 1 ))
-                check_param ${args[$i]}
+                (( i++ ))
+                check_param "${args[$i]}"
                 theme=${args[$i]}
                 
-                [ ! -d "${dir}/${theme}" ] && error "The theme named \"${theme}\" doesn't exist"
+                [[ ! -d $dir/$theme ]] && error "The theme named \"${theme}\" doesn't exist"
             ;;
-            "-o")
+            -o)
                 override=true
             ;;
-            "-q")
+            -q)
                 quiet=true
             ;;
-            "-r")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+            -r)
+                [[ -n $theme ]] && error "Invalid combination of arguments"
 
-                [ ! -f "$colr" ] && error "Please create a theme first"
-                old_theme=`cat $colr | head -1 | awk '{ print $2}' || echo ""`
+                [[ ! -f $colr ]] && error "Please create a theme first"
+                old_theme=$(head -1 < "$colr" | awk '{ print $2}' || echo "")
                 theme="$old_theme"
                 
-                while [[ "$theme" == "$old_theme" ]]
+                while [[ $theme == "$old_theme" ]]
                 do
-                    if find "$dir" -mindepth 1 | read
+                    if find "$dir" -mindepth 1 | read -r
                     then
-                        path=`shuf -n1 -e ${dir}/*`
+                        path=$(shuf -n1 -e "$dir/"*)
                         theme=$(basename "$path")
                     else
                         error "There are no created themes yet"
                     fi
                 done
             ;;
-            "-s")
-                [ -n "$ctheme" ] && error "Invalid combination of arguments"
+            -s)
+                [[ -n $ctheme ]] && error "Invalid combination of arguments"
 
-                [ ! -f "$colr" ] && error "Please create a theme first"
+                [[ ! -f $colr ]] && error "Please create a theme first"
 
                 # Get the opposite colors of the current theme
-                ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
-                ctheme=`[[ $ctheme == "dark" ]] && echo "light" || echo "dark"`
+                ctheme=$(head -2 < "$colr" | tail -1 | awk '{ print $2}')
+                ctheme=$([[ $ctheme == "dark" ]] && echo "light" || echo "dark")
             ;;
-            "-u")
-                [ -n "$theme" ] && error "Invalid combination of arguments"
+            -u)
+                [[ -n $theme ]] && error "Invalid combination of arguments"
 
                 url="random"
-                i=$(( $i + 1 ))
+                (( i++ ))
                 search_term=${args[$i]}
-                [[ -z $search_term || $search_term == -* ]] && i=$(( $i - 1 )) && search_term=""
+                [[ -z $search_term || $search_term == -* ]] && (( i-- )) && search_term=""
                 unsplash
             ;;
             *)
@@ -138,11 +138,11 @@ args() {
             ;;
         esac
 
-        i=$(( $i + 1 ))
+        (( i ++  ))
     done
 
     # If arguments but no changes, quit
-    [[ $i != 0 ]] && [ -z "$theme" ] && [ -z "$ctheme" ] && quit
+    [[ $i != 0 ]] && [[ -z $theme ]] && [[ -z $ctheme ]] && quit
 
     # If $theme not set, get the last one
     if [ -z "$theme" ]
@@ -151,18 +151,18 @@ args() {
         then
             error "Please create a theme first"
         else
-            theme=`cat $colr | head -1 | awk '{ print $2}'`
-            [ ! -d ${dir}/${theme} ] && error "Couldn't find the theme"
+            theme=$(head -1 < "$colr" | awk '{ print $2}')
+            [[ ! -d $dir/$theme ]] && error "Couldn't find the theme"
         fi
     fi
 
     # If ctheme not set, get the last one
-    [ -z "$ctheme" ] && ctheme=`cat $colr | head -2 | tail -1 | awk '{ print $2}'`
-    [ -z "$ctheme" ] && ctheme="dark"
+    [[ -z $ctheme ]] && ctheme=$(head -2 < "$colr" | tail -1 | awk '{ print $2}')
+    [[ -z $ctheme ]] && ctheme="dark"
 
     # If theme already exists and no -o, stop program
-    if [[ "$create" == "true" && "$override" != "true" ]]
+    if [[ $create == "true" && $override != "true" ]]
     then
-        [ -d "${dir}/${theme}" ] && error "A theme with this name already exists, use -o to override"
+        [[ -d $dir/$theme ]] && error "A theme with this name already exists, use -o to override"
     fi
 }
