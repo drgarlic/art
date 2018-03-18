@@ -43,7 +43,7 @@ args() {
             -c)
                 [[ ! -f $colr ]] && error "Please set a theme first"
 
-                theme_name=$(cat "$colr" | head -1 | awk '{ print $2}')
+                theme_name=$(head -1 < "$colr" | awk '{ print $2}')
                 
                 [[ -z $theme_name ]] && error "Please set a theme first"
                 
@@ -101,7 +101,7 @@ args() {
                 [[ -n $theme ]] && error "Invalid combination of arguments"
 
                 [[ ! -f $colr ]] && error "Please create a theme first"
-                old_theme=$(cat "$colr" | head -1 | awk '{ print $2}' || echo "")
+                old_theme=$(head -1 < "$colr" | awk '{ print $2}' || echo "")
                 theme="$old_theme"
                 
                 while [[ $theme == "$old_theme" ]]
@@ -121,7 +121,7 @@ args() {
                 [[ ! -f $colr ]] && error "Please create a theme first"
 
                 # Get the opposite colors of the current theme
-                ctheme=$(cat "$colr" | head -2 | tail -1 | awk '{ print $2}')
+                ctheme=$(head -2 < "$colr" | tail -1 | awk '{ print $2}')
                 ctheme=$([[ $ctheme == "dark" ]] && echo "light" || echo "dark")
             ;;
             -u)
@@ -151,13 +151,13 @@ args() {
         then
             error "Please create a theme first"
         else
-            theme=$(cat "$colr" | head -1 | awk '{ print $2}')
+            theme=$(head -1 < "$colr" | awk '{ print $2}')
             [[ ! -d $dir/$theme ]] && error "Couldn't find the theme"
         fi
     fi
 
     # If ctheme not set, get the last one
-    [[ -z $ctheme ]] && ctheme=$(cat "$colr" | head -2 | tail -1 | awk '{ print $2}')
+    [[ -z $ctheme ]] && ctheme=$(head -2 < "$colr" | tail -1 | awk '{ print $2}')
     [[ -z $ctheme ]] && ctheme="dark"
 
     # If theme already exists and no -o, stop program
