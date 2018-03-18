@@ -9,7 +9,7 @@ tweak_blk() {
 
 tweak_gry() {
     hex_to_hsv "$1"
-    V=$(( V + $2 ))
+    (( V += $2 ))
     hsv_to_hex
 }
 

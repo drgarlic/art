@@ -7,9 +7,9 @@ adjust_out_of_bound() {
 adjust() {
     hex_to_rgb "$1"
 
-    R=$(( R + $2 ))
-    G=$(( G + $3 ))
-    B=$(( B + $4 ))
+    (( R += $2 ))
+    (( G += $3 ))
+    (( B += $4 ))
 
     R=$(adjust_out_of_bound "$R")
     G=$(adjust_out_of_bound "$G")
