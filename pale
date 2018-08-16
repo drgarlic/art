@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+#
+#  ||''.   ^   '||   ||''|
+#  ||--'  //\   ||   ||-  
+#  ||    //''\  ||_| ||__|
+#
+# Description:              Display the color palette
+# Dependencies:             art
+# Optionnal dependencies:   scrot
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# IMPORTS
+# ---
+
+. art-api
+
+# ---
+# SETUP
+# ---
+
+# Disable unicode.
+LC_ALL=C
+LANG=C
+
+# Get all arguments
+args=( $@ )
+
+# Get the number of arguments
+nb_args=$#
+
+# The number of color lines that are going to be displayed
+nb_lines=4
+
+# ---
+# LOCAL
+# ---
+
+pale.args() {
+    local i=0 
+
+    # Loop that will go through each and every argument
+    while [[ $i != $nb_args ]]
+    do
+        case "${args[$i]}" in
+            "-n" )
+                # Choose the number of times the color line should be displayed
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                nb_lines="${args[$i]}"
+                [[ $nb_lines -lt 1 ]] && nb_lines=1
+            ;;
+            "-s" )
+                # Enable the screenshot value
+
+                screenshot=true
+            ;;
+            * )
+                # Display an error on invalid arguments
+
+                log.error "arguments" "Invalid argument, please try again"
+            ;;
+        esac
+
+        (( i++ ))
+    done
+}
+
+# ---
+# MAIN
+# ---
+
+pale.main() {
+    pale.args
+
+    local colors=( $( art-api.get_colors ) )
+
+    # Get hexadical values
+    local xblk=${colors[0]}
+    local xgry=${colors[1]}
+    local xred=${colors[2]}
+    local xgrn=${colors[3]}
+    local xblu=${colors[4]}
+    local xwht=${colors[5]}
+
+    # Background
+    local bblk="\\e[40m"
+    local bgry="\\e[100m"
+    local bred="\\e[41m"
+    local bgrn="\\e[42m"
+    local bblu="\\e[44m"
+    local bwht="\\e[47m"
+
+    # Foreground
+    local fblk="\\e[30m"
+    local fgry="\\e[90m"
+    local fred="\\e[31m"
+    local fgrn="\\e[32m"
+    local fblu="\\e[34m"
+    local fwht="\\e[37m"
+
+    printf "\n"
+    for (( ; i < $nb_lines; i++ )) { \
+        printf "         ${bgry}         ${bred}         ${bgrn}         ${bblu}         ${bwht}         ${bblk}\n"; }
+    printf " ${xblk}  ${fgry}${xgry}  ${fred}${xred}  ${fgrn}${xgrn}  ${fblu}${xblu}  ${fwht}${xwht}\n"
+    printf "\n"
+
+    if [[ $screenshot == true ]]
+    then
+        pure.read_sleep 0.1
+        local theme=$( art-api.get_theme )
+        scrot -u "${thm_dir}/${theme}/preview.png"
+    fi
+}
+
+# ---
+# LAUNCH
+# ---
+
+pale.main

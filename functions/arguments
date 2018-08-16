@@ -1,0 +1,339 @@
+#!/usr/bin/env bash
+
+# Process arguments
+arguments.args() {
+    log.debug "arguments" "In arguments.args()"
+
+    local i=0 
+
+    # Loop that will go through each and every argument
+    while [[ $i != $nb_args ]]
+    do
+        log.debug "arguments" "argument = ${args[$i]}"
+
+        case "${args[$i]}" in
+            "-blk" )
+                # Preset the black color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[0]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            "-blu" )
+                # Preset the blue color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[4]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            "-c" | "-copy" )
+                # Copy a theme and exit
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+                
+                checkers.is_theme "${args[$i]}" && theme="${args[$i]}" || \
+                    log.error "arguments" "The provided theme name is incorrect"
+                
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                cp -R "${thm_dir}/${theme}" "${thm_dir}/${args[$i]}"
+
+                exit 0
+            ;;
+            "-dark" )
+                # Set the brightness of the theme to dark
+
+                brightness="dark"
+            ;;
+            "-grn" )
+                # Preset the green color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[3]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            "-gry" )
+                # Preset the grey color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[1]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            "-h" | "-help" )
+                # Display a helping text and exit
+
+                helpers.helper
+
+                exit 0
+            ;;
+            "-i" | "-image" )
+                # Create a theme using a local picture
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                wallpaper=$( realpath "${args[$i]}" )
+                [[ ! -f $wallpaper ]] && log.error "arguments" "Invalid file type"
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+                theme="${args[$i]}"
+
+                create=true
+            ;;
+            "-l" | "-link" )
+                # Create a theme using a link to an image
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                wallpaper="/tmp/picture.jpg"
+
+                pure.check_program_in_path "wget" || \
+                    log.error "arguments" "Wget is missing, can't download wallpapers from your link"
+
+                wget -O "$wallpaper" -q --timeout=20 "${args[$i]}" || log.error "arguments" "Coudn't download the picture"
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+                theme="${args[$i]}"
+
+                create=true
+            ;;
+            "-light" )
+                # Set the brightness of the theme to light
+
+                brightness="light"
+            ;;
+            "-list" )
+                # Display a list of available themes and exit
+
+                printf '%s\n' "List of available themes:"
+
+                # If the theme folder isn't empty
+                if [[ $( pure.basename ${thm_dir}/*/ ) != "*" ]]
+                then
+                    for dir in ${thm_dir}/*/
+                    do  
+                        pure.basename "$dir"
+                    done
+                else
+                    log.warning "arguments" "There are no themes to list"
+                fi
+
+                exit 0
+            ;;
+            "-n" | "-name" )
+                # Display the name of the current theme and exit
+
+                printf '%s\n' "Current theme:"
+
+                log.debug "arguments" "theme = $theme"
+                checkers.is_theme "$theme" && printf '%s\n' "$theme" || \
+                    log.warning "arguments" "Can't display the current theme"
+
+                exit 0
+            ;;
+            "-o" | "-override" )
+                # Enable overriding of existing themes
+
+                override=true
+            ;;
+            "-q" | "-quiet" )
+                # Disable info logs
+
+                # Already disable
+            ;;
+            "-r" | "-random" )
+                # Select a random theme to load
+
+                [[ $( pure.count ${thm_dir}/*/ ) -lt 2 ]] && log.error "arguments" "There are not enough themes to shuffle"
+
+                local old_theme=$theme
+                
+                while [[ "$theme" == "$old_theme" ]]
+                do
+                    log.debug "arguments" "In -r loop"
+                    local themes=( ${thm_dir}/* )
+                    theme="$( pure.basename "$( pure.random_array_element "${themes[@]}" )" )"
+                done
+                log.debug "arguments" "theme = $theme"
+            ;;
+            "-reload" )
+                # Reload the current theme
+
+                checkers.is_theme "$theme" || log.error "arguments" "Couldn't reload the theme"
+
+                wallpaper=$( realpath ${thm_dir}/${theme}/wallpaper* )
+
+                reload=true
+                create=true
+                override=true
+            ;;
+            "-red" )
+                # Preset the red color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[2]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            "-s" | "-swap" )
+                # Swap the value of the current brightness
+
+                [[ $brightness == "dark" ]] && brightness="light" || brightness="dark"
+            ;;
+            "-t" | "-theme" )
+                # Select a particular theme to load
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+                
+                checkers.is_theme "${args[$i]}" && theme="${args[$i]}" || \
+                    log.error "arguments" "The provided theme name is incorrect"
+                log.debug "arguments" "theme = $theme"
+            ;;
+            "-ua" | "-unsplash-artist" )
+                # Create a theme using a random picture from an Unsplash's artist
+
+                checkers.is_argument_s_value "${args[$(( i + 1))]}" && (( ++i )) && unsplash_artist=${args[$i]}
+                [[ -z "$unsplash_artist" ]] && unsplash_artist="gawlk"
+                log.debug "arguments" "unsplash_artist = $unsplash_artist"
+                
+                wallpaper="/tmp/unsplash.jpg"
+    
+                pure.check_program_in_path "wget" || \
+                    log.error "arguments" "Wget is missing, can't download wallpapers from unsplash"
+
+                wget -O "$wallpaper" --timeout=20 "https://source.unsplash.com/user/${unsplash_artist}" &> /dev/null || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+                
+                theme="unsplash-artist"
+                create=true
+                override=true
+            ;;
+            "-uc" | "-unsplash-collection" )
+                # Create a theme using a random picture from an Unsplash's collection
+
+                checkers.is_argument_s_value "${args[$(( i + 1))]}" && (( ++i )) && unsplash_collection=${args[$i]}
+                [[ -z "$unsplash_collection" ]] && unsplash_collection="1459961"
+                log.debug "arguments" "unsplash_collection = $unsplash_collection"
+                
+                wallpaper="/tmp/unsplash.jpg"
+    
+                pure.check_program_in_path "wget" || \
+                    log.error "arguments" "Wget is missing, can't download wallpapers from unsplash"
+
+                wget -O "$wallpaper" --timeout=20 "https://source.unsplash.com/collection/${unsplash_collection}" &> /dev/null || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+                
+                theme="unsplash-collection"
+                create=true
+                override=true
+            ;;
+            "-ud" | "-unsplash-daily" )
+                # Create a theme using the picture of the day from Unsplash
+
+                local tmp1="/home/gawk/Downloads/unsplash"
+                local tmp2="/tmp/unsplash2"
+
+                wallpaper="/tmp/unsplash.jpg"
+    
+                pure.check_program_in_path "wget" || \
+                    log.error "arguments" "Wget is missing, can't download wallpapers from unsplash"
+            
+                wget -O "$tmp1" -q --timeout=20 "https://unsplash.com/" || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+
+                # Get image info page
+                local info_link="photos/$( grep -o -P '(?<=href="/photos/).*(?=">Photo of the Day)' < "$tmp1" )"
+                log.debug "argument" "unsplash info link: $info_link"
+
+                wget -O "$tmp1" -q --timeout=20 "https://unsplash.com/${info_link}" || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+
+                # Get artist
+                local artist="$( grep -o -P '(?<=photo by ).*(?=on Unsplash</title>)' < "$tmp1" )"
+                log.info "argument" "Artist of the day: $artist"
+
+                # Get image link
+                pure.split "$( grep "content=\"https://images.unsplash.com/" < "$tmp1" )" \
+                    "content=\"https://images.unsplash.com/" > "$tmp2"
+                pure.split "$( grep "photo-" < "$tmp2" )" "?ixlib" > "$tmp2"
+                local image_link="https://images.unsplash.com/$( pure.head 1 "$tmp2" )"
+                log.debug "argument" "unsplash image_link: $image_link"
+
+                # Download picture
+                wget -q -O "$wallpaper" --timeout=20 "$image_link" || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+
+                theme="unsplash-daily"
+                create=true
+                override=true
+            ;;
+            "-ur" | "-unsplash-random" )
+                # Create a theme using a random picture from Unsplash
+
+                local search_term=""
+                checkers.is_argument_s_value "${args[$(( i + 1))]}" && (( ++i )) && search_term=${args[$i]}
+                log.debug "arguments" "search_term = $search_term"
+                
+                wallpaper="/tmp/unsplash.jpg"
+    
+                pure.check_program_in_path "wget" || \
+                    log.error "arguments" "Wget is missing, can't download wallpapers from unsplash"
+
+                wget -O "$wallpaper" --timeout=20 "https://source.unsplash.com/random/?${search_term}" &> /dev/null || \
+                    log.error "arguments" "Coudn't connect to unsplash's servers"
+                
+                theme="unsplash-random"
+                create=true
+                override=true
+            ;;
+            "-wht" )
+                # Preset the white color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+
+                checkers.is_hex "${args[$i]}" && final_colors[5]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
+            * )
+                # Display an error on invalid arguments
+
+                log.error "arguments" "Invalid argument, please try again \n$( helpers.helper )"
+            ;;
+        esac
+
+        (( i++ ))
+    done
+
+    # Initiate the brightness to dark if not set
+    [[ -z "$brightness" ]] && brightness="dark"
+
+    # Display error if the $theme variable is empty
+    [[ -z "$theme" ]] && log.error "arguments" "Please create a theme first"
+
+    # If theme already exists and override is set to false, display a warnong
+    checkers.is_theme "$theme" && [[ $create == true && $override == false ]] && \
+        log.warning "arguments" "A theme with this name already exists, use -o to override" && \
+            log.warning "arguments" "Skipping the creation part..." && create=false
+}

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# ---
+# GLOBAL
+# ---
+
+generators.colors() {
+    log.info "generators" "Generating colors..."
+    log.debug "generators" "In generators.colors()"
+
+    [[ $nb_gen_colors -lt 1 ]] && nb_gen_colors=1
+    log.debug "generators" "nb_gen_colors = $nb_gen_colors"
+
+    pure.check_program_in_path "convert" || log.error "generators" "Please install imagemagick"
+    initial_colors=( $( convert "$wallpaper" -resize 25% +dither -colors "$nb_gen_colors" -unique-colors txt:- | grep -E -o " \#.{6}" ) )
+    log.debug "generators" "initial_colors = ${initial_colors[@]}"
+
+    [[ ${#initial_colors[@]} -lt 1 ]] && rm -R "${thm_dir}/${theme}" && log.error "generators" "Something is wrong with the picture"
+
+    while [[ ${#initial_colors[@]} -lt 5 ]]
+    do
+        initial_colors[${#initial_colors[@]}]="$( pure.random_array_element "${initial_colors[@]}" )"
+    done
+    log.debug "generators" "initial_colors = ${initial_colors[@]}"
+}
+
+generators.conf_file() {
+    log.info "generators" "Generating the configuration file..."
+    log.debug "generators" "In generators.conf_file()"
+
+    printf '%s\n'   "[global]"                                 > "$conf_file"
+    printf '%s\n'   "    theme = ${theme}"                    >> "$conf_file"
+    printf '%s\n\n' "    brightness = ${brightness}"          >> "$conf_file"
+
+    printf '%s\n'   "[colors]"                                >> "$conf_file"
+    printf '%s\n'   "    blk = ${final_colors[0]}"            >> "$conf_file"
+    printf '%s\n'   "    gry = ${final_colors[1]}"            >> "$conf_file"
+    printf '%s\n'   "    red = ${final_colors[2]}"            >> "$conf_file"
+    printf '%s\n'   "    grn = ${final_colors[3]}"            >> "$conf_file"
+    printf '%s\n'   "    blu = ${final_colors[4]}"            >> "$conf_file"
+    printf '%s\n\n' "    wht = ${final_colors[5]}"            >> "$conf_file"
+
+    printf '%s\n'   "[unsplash]"                              >> "$conf_file"
+    printf '%s\n'   "    artist = ${unsplash_artist}"         >> "$conf_file"
+    printf '%s\n'   "    collection = ${unsplash_collection}" >> "$conf_file"
+}
+
+generators.theme_files() {
+    log.info "generators" "Generating theme files..."
+    log.debug "generators" "In generators.theme_files()"
+
+    printf '%s\n' "[colors]" > "${thm_dir}/${theme}/dark.conf"
+    for (( i=0; i < 6; i++ )) { printf '%s\n' "    ${str_colors[$i]} = ${dark_colors[$i]}" >> "${thm_dir}/${theme}/dark.conf"; }
+    printf '%s\n' "[colors]" > "${thm_dir}/${theme}/light.conf"
+    for (( i=0; i < 6; i++ )) { printf '%s\n' "    ${str_colors[$i]} = ${light_colors[$i]}" >> "${thm_dir}/${theme}/light.conf"; }
+}
+
+generators.xresources_file() {
+    log.info "generators" "Generating the .Xresources.colors file..."
+    log.debug "generators" "In generators.xresources_file()"
+
+    printf '%s\n' "! $theme" > "$xres_file"
+    printf '%s\n' "! $brightness" >> "$xres_file"
+    for i in {0..5}; { printf '%s\n' "#define ${str_colors[$i]} ${final_colors[$i]}" >> "$xres_file"; }
+}

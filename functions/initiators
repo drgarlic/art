@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+
+# ---
+# LOCAL
+# ---
+
+# Small warning if something is found wrong in the configuration file
+initiators.invalid_conf() {
+    log.warning "initiators" "Invalid $1 in the configuration file"
+}
+
+# Read a specific line in the configuration file and get the value
+initiators.read_line() {
+    local array=( $( pure.split "$( pure.strip_all "$( grep "$2" < "$1" )" " " )" "=" ) )
+    printf '%s\n' "${array[1]}"
+}
+
+# ---
+# GLOBAL
+# ---
+
+# Initiate all the global variables (very useful if you need to remind yourself of the list)
+initiators.global_variables() {
+    log.debug "initiators" "In initiators.global_variables()"
+
+    # ---
+    # VARIABLES
+    # ---
+
+    # The brightness to charge during the update
+    # (Used everywhere)
+    brightness=""
+
+    # The number of colors that are going to be generated with imagemagick from the given picture
+    # The higher, the more specific the colors are going to be
+    # (Used in generators.colors())
+    nb_gen_colors=5
+
+    # Variable used to enable or disable the overriding of existing themes
+    # (Used in arguments.args())
+    override=false
+
+    # Variable used to enable or disable the reload of a theme
+    # (Used in initiators.theme_folder())
+    reload=false
+
+    # The name of the current theme
+    # (Used everywhere)
+    theme=""
+
+    # Path to the picture used to create a theme
+    # (Used in arguments.args() and updaters.desktop())
+    wallpaper=""
+
+    # ---
+    # ARRAYS
+    # ---
+
+    # Array of colors in hex
+    # initial_colors are the colors generated with imagemagick
+    # dark_colors are the colors for the dark version of the theme
+    # light_colors are the colors for the dark version of the theme
+    initial_colors=( )
+    dark_colors=( )
+    light_colors=( )
+    final_colors=( )
+
+    # Array of colors' strings
+    # (Used in generator.theme_files())
+    str_colors=( "blk" "gry" "red" "grn" "blu" "wht" )
+}
+
+# If not found, create the configuration file and/or the folder containing the themes
+initiators.init() {
+    log.debug "initiators" "In initiators.init()"
+
+    mkdir -p "$thm_dir"
+    >> $conf_file
+}
+
+# Read the colors from the configuration file
+initiators.read_colors() {
+    log.info "initiators" "Reading colors..."
+    log.debug "initiators" "In initiators.read_conf_colors()"
+
+    local file="$conf_file"
+    log.debug "initiators" "theme = $theme"
+    log.debug "initiators" "last_theme = $last_theme"
+    log.debug "initiators" "brightness = $brightness"
+    log.debug "initiators" "last_brightness = $last_brightness"
+    ( [[ "$theme" != "$last_theme" ]] || [[ "$brightness" != "$last_brightness" ]] ) && \
+        file="${thm_dir}/${theme}/${brightness}.conf"
+
+    local blk=$( initiators.read_line "$file" "blk = " )
+    [[ -n "$blk" ]] && ! checkers.is_hex "$blk" && initiators.invalid_conf "blk color" && blk="#000000"
+    log.debug "initiators" "blk = $blk"
+    local gry=$( initiators.read_line "$file" "gry = " )
+    [[ -n "$gry" ]] && ! checkers.is_hex "$gry" && initiators.invalid_conf "gry color" && gry="#444444"
+    log.debug "initiators" "gry = $gry"
+    local red=$( initiators.read_line "$file" "red = " )
+    [[ -n "$red" ]] && ! checkers.is_hex "$red" && initiators.invalid_conf "red color" && red="#bb8888"
+    log.debug "initiators" "red = $red"
+    local grn=$( initiators.read_line "$file" "grn = " )
+    [[ -n "$grn" ]] && ! checkers.is_hex "$grn" && initiators.invalid_conf "grn color" && grn="#88bb88"
+    log.debug "initiators" "grn = $grn"
+    local blu=$( initiators.read_line "$file" "blu = " )
+    [[ -n "$blu" ]] && ! checkers.is_hex "$blu" && initiators.invalid_conf "blu color" && blu="#8888bb"
+    log.debug "initiators" "blu = $blu"
+    local wht=$( initiators.read_line "$file" "wht = " )
+    [[ -n "$wht" ]] && ! checkers.is_hex "$wht" && initiators.invalid_conf "wht color" && wht="#eeeeee"
+    log.debug "initiators" "wht = $wht"
+
+    setters.final_colors "$blk" "$gry" "$red" "$grn" "$blu" "$wht"
+    log.debug "initiators" "final_colors = ${final_colors[@]}"
+}
+
+# Read global values from the configuration file
+initiators.read_conf() {
+    log.debug "initiators" "In initiators.read_conf()"
+
+    theme=$( initiators.read_line "$conf_file" "theme = " )
+    [[ -n "$theme" ]] && ! checkers.is_theme "$theme" && \
+        initiators.invalid_conf "theme name" && theme=""
+    last_theme="$theme"
+    log.debug "initiators" "theme = $theme"
+    log.debug "initiators" "last_theme = $last_theme"
+    
+    brightness=$( initiators.read_line "$conf_file" "brightness = " )
+    [[ -n "$brightness" ]] && ! checkers.is_brightness "$brightness" && \
+        initiators.invalid_conf "brightness value" && brightness="dark"
+    last_brightness="$brightness"
+    log.debug "initiators" "brightness = $brightness"
+    log.debug "initiators" "last_brightness = $last_brightness"
+
+    unsplash_artist=$( initiators.read_line "$conf_file" "artist = " )
+    log.debug "initiators" "unsplash_artist = $unsplash_artist"
+
+    unsplash_collection=$( initiators.read_line "$conf_file" "collection = " )
+    log.debug "initiators" "unsplash_collection = $unsplash_collection"
+}
+
+# Initiate the theme's folder
+initiators.theme_folder() {
+    log.info "initiators" "Initiating the theme's folder"
+    log.debug "initiators" "In initiators.theme_folder()"
+
+    mkdir -p "${thm_dir}/${theme}"
+
+    local extension="${wallpaper##*.}"
+    log.debug "initiators" "extension = $extension"    
+    checkers.is_extension "$extension" || log.error "arguments" "The extension of the picture must be jpg or png"
+
+    [[ $reload != true ]] && ( cp "$wallpaper" "${thm_dir}/${theme}/wallpaper.${extension}" &> /dev/null || \
+        log.warning "initiators" "There is a problem with the picture, please try again" )
+}

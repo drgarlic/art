@@ -1,92 +1,97 @@
 #!/usr/bin/env bash
 #
-# Description: Theme generator
-# Dependency: imagemagick
+#   /o o\    ^   ||''. ['|']
+#  |o o <   //\  ||-+'   |
+#   \o o/  //''\ ||  \  .|
 #
-# TODO:
-# - link support
-# - fix green and blue sometimes being too similar
-# - fix grey sometimes being too dark
+# Description:              Smart theme generator
+# Dependencies:             imagemagick, xorg
+# Optionnal dependencies:   feh, grep, wget, notf, lamp
+# Author:                   gawlk
+# Contributors:             marinhoc
 
-# Get arguments
-args=($@)
+# ---
+# TODO
+# ---
+#
+# - Improve the selection of rgb in setters.rgb()
+# - Improve the ifs in checkers.colors()
+# - Find the perfect balance in tweakers.color()
+
+# ---
+# IMPORTS
+# ---
+
+. art-utils
+art-utils.paths
+art-utils.import
+
+# ---
+# SETUP
+# ---
+
+# Disable unicode.
+LC_ALL=C
+LANG=C
+
+# Enable/Disable debug output (log.casual || log.dev)
+log.casual
+
+# Get all arguments
+args=( $@ )
+
+# Get the number of arguments
 nb_args=$#
 
-# Import functions
-. adjsts
-. args
-. checks
-. cvrts
-. gens
-. hlp
-. inits
-. sets
-. tweaks
-. updts
+# If -q argument is found, disable logs
+for(( ; i < $nb_args ; i++ )) { [[ "${args[$i]}" == "-q" || "${args[$i]}" == "-quiet" ]] && log.quiet; }
 
-error() {
-    echo "ERROR: $1"
-    exit 1
-}
+# ---
+# MAIN
+# ___
 
-quit() {
-    exit 0
-}
+art.main() {
+    initiators.init
 
-print() {
-    [[ $quiet != "true" ]] && echo -e "$1"
-}
+    initiators.global_variables
 
-load_colors() {
-    print "Loading the theme..."
+    initiators.read_conf
 
-    echo "! $theme" > "$colr"
-    echo "! $ctheme" >> "$colr"
-    
-    i=0
-    IFS=$'\n'
-    colors=()
-    while read -r color; do
-        echo "#define ${names[$i]} $color" >> "$colr"
-        (( i++ ))
-        colors+=( $color )
-    done < <(grep '#' "$dir/$theme/$ctheme")
-    IFS=$' '
-    
-    blk=${colors[0]}
-    gry=${colors[1]}
-    red=${colors[2]}
-    rn=${colors[3]}
-    blu=${colors[4]}
-    wht=${colors[5]}
-}
-
-main() {
-    init
-
-    args
+    arguments.args
 
     # If new theme or -o paramater
-    if [[ -n $create && $create == true ]]
+    if [[ $create == true ]]
     then
-        init_folder
+        initiators.theme_folder
 
-	    gen_colors
+        generators.colors
 
-        set_colors
+        setters.theme
 
-        tweak_colors
+        tweakers.theme
 
-        check_colors
+        checkers.theme
 
-        gen_files
+        generators.theme_files
+    else
+        initiators.read_colors
     fi
 
-    load_colors
+    generators.conf_file
 
-    update
+    generators.xresources_file
 
-    [[ $quiet != "true" ]] && notify-send "Theme: $theme"
+    updaters.desktop
+
+    log.is_loud && pale -n 1
+
+    pure.check_program_in_path "notf" && notf "Theme: $theme"
+
+    pure.check_program_in_path "lamp" && lamp
 }
 
-main
+# ---
+# LAUNCH
+# ---
+
+art.main

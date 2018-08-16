@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# ---
+# GLOBAL
+# ---
+
+helpers.helper() {
+    log.debug "helpers" "In helpers.helper()"
+
+    printf '%s\n' "
+art - Theme generator
+
+Arguments:
+(none)                              Load the current theme
+-blk                                Preset the black color
+-blu                                Preset the blue color
+-c | -copy \"theme\" \"name\"           Copy a theme and exit
+-dark                               Set the brightness of the theme to dark
+-grn                                Preset the green color
+-gry                                Preset the grey color
+-h | -help                          Display this menu and exit
+-i | -image \"file\" \"name\"           Create a theme using a local picture
+-l | -link \"link\" \"name\"            Create a theme using a link to an image
+-light                              Set the brightness of the theme to light
+-list                               Display a list of available themes and exit
+-n | -name                          Display the name of the current theme and exit
+-o | -override                      Enable overriding of existing themes (one-time only)
+-q | -quiet                         Disable logs
+-r | -random                        Select a random theme to load
+-reload                             Rewrite the configuration of the current theme (for devs)
+-red                                Preset the red color
+-s | -swap                          Swap the brightness of the current theme
+-t | -theme \"theme\"                 Load a particular theme
+-ua | -unsplash-artist \"name\"       Create a theme using a random picture from an Unsplash's artist
+-uc | -unsplash-collection \"name\"   Create a theme using a random picture from an Unsplash's collection
+-ud | -unsplash-daily               Create a theme using Unsplash's picture of the day
+-ur | -unsplash-random              Create a theme using a random picture from Unsplash
+-wht                                Preset the white color
+"
+}

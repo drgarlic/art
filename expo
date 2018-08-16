@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#
+#  ||''| '\ // ||''.  //\ 
+#  ||-     X/  ||--' ||  |
+#  ||__| _//\_ ||     \\/ 
+#
+# Description:              A quick theme previewer and README generator
+# Dependencies:             urxvt
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# IMPORTS
+# ---
+
+. art-api
+
+# ---
+# SETUP
+# ---
+
+# Disable unicode.
+LC_ALL=C
+LANG=C
+
+# ---
+# LOCAL
+# ---
+
+expo.preview() {
+    pure.read_sleep 0.5
+    urxvtc -geometry 54x7 -e pale -s
+    pure.read_sleep 0.5
+
+    local theme=$( art-api.get_theme )
+    mv "${thm_dir}/${theme}/preview.png" "${thm_dir}/${theme}/${1}.png"
+}
+
+expo.gen_readme() {
+    local readme="${thm_dir}/${theme}/README.md"
+
+    printf '%s\n\n%s\n' "# Themes" "> Wallpapers: [unsplash](https://unsplash.com/)" > $readme
+
+    for entry in ${thm_dir}/*
+    do
+        if [[ -d "$entry" && "$entry" != *"unsplash-"* ]]
+        then
+            entry=$(pure.basename $entry) 
+            printf '\n%s\n\n%s\n\n%s\n' "### ${entry}" "![${entry} dark](/${entry}/dark.png)" \
+                "![${entry} light](/${entry}/light.png)" >> $readme
+        fi
+    done
+}
+
+# ---
+# MAIN
+# ---
+
+expo.main() {
+    local brightness=$( art-api.get_brightness )
+    
+    expo.preview "$brightness"
+
+    [[ "$brightness" == "dark" ]] && brightness="light" || brightness="dark"
+
+    art -q -s
+
+    expo.preview "$brightness"
+
+    art -q -s
+
+    expo.gen_readme
+}
+
+# ---
+# LAUNCH
+# ---
+
+expo.main

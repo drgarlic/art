@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+# ---
+# LOCAL
+# ---
+
+# Alter the hue of a color
+checkers.alter_hue() {
+    local color_in_hsv=( $1 )
+    local H=${color_in_hsv[0]}
+    local S=${color_in_hsv[1]}
+    local V=${color_in_hsv[2]}
+
+    case "$2" in
+        "inc") (( H += 1 )) ;;
+        "dec") (( H -= 1 )) ;;
+    esac
+
+    [[ $H -lt 0 ]] && (( H += 360 ))
+    [[ $H -gt 359 ]] && (( H -= 360 ))
+
+    printf '%s\n' "$H $S $V"
+}
+
+# Check if two colors are similar
+checkers.are_similar() {
+    local color1_in_hsv=( $1 )
+    local color2_in_hsv=( $2 )
+
+    local hue_diff=$(( color1_in_hsv[0] - color2_in_hsv[0] ))
+    hue_diff=${hue_diff#-}
+
+    min_diff=30
+    [[ $hue_diff -lt $min_diff || $(( 360 - hue_diff )) -lt $min_diff ]]
+}
+
+# Check similarities between the red, the green and the blue color
+checkers.colors() {
+    local blk="$1"
+    local gry="$2"
+    local red="$3"
+    local grn="$4"
+    local blu="$5"
+    local wht="$6"
+
+    while ( checkers.are_similar "$red" "$grn" || \
+                checkers.are_similar "$red" "$blu" || \
+                    checkers.are_similar "$grn" "$blu" )
+    do
+        if checkers.are_similar "$red" "$grn"
+        then
+            grn="$( checkers.alter_hue "$grn" "inc" )"
+            red="$( checkers.alter_hue "$red" "dec" )"
+        elif checkers.are_similar "$red" "$blu"
+        then
+            red="$( checkers.alter_hue "$red" "inc" )"
+            blu="$( checkers.alter_hue "$blu" "dec" )"
+        elif checkers.are_similar "$grn" "$blu"
+        then
+            blu="$( checkers.alter_hue "$blu" "inc" )"
+            grn="$( checkers.alter_hue "$grn" "dec" )"
+        fi
+    done
+
+    blk="$( converters.hsv_to_hex $blk )"
+    gry="$( converters.hsv_to_hex $gry )"
+    red="$( converters.hsv_to_hex $red )"
+    grn="$( converters.hsv_to_hex $grn )"
+    blu="$( converters.hsv_to_hex $blu )"
+    wht="$( converters.hsv_to_hex $wht )"
+    
+    printf '%s\n' "$blk $gry $red $grn $blu $wht"
+}
+
+# ---
+# GLOBAL
+# ---
+
+checkers.is_argument_s_value() {
+    [[ -n "$1" && "$1" != -* ]]
+}
+
+checkers.is_brightness() {
+    [[ "$1" == "dark" ]] || [[ "$1" == "light" ]]
+}
+
+checkers.is_extension() {
+    [[ "$1" == "jpg" || "$1" == "png" ]]
+}
+
+checkers.is_hex() {
+    [[ "$1" =~ ^(#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$ ]]
+}
+
+checkers.is_theme() {
+    [[ -d "$thm_dir/$1/" ]]
+}
+
+# Check the theme
+checkers.theme() {
+    log.info "checkers" "Checking the theme..."
+    log.debug "checkers" "In checkers.theme()"
+
+    dark_colors=( $( checkers.colors "${dark_colors[0]}" "${dark_colors[1]}" \
+        "${dark_colors[2]}" "${dark_colors[3]}" "${dark_colors[4]}" "${dark_colors[5]}" ) )
+    log.debug "checkers" "dark_colors = ${dark_colors[@]}"
+    light_colors=( $( checkers.colors "${light_colors[0]}" "${light_colors[1]}" \
+        "${light_colors[2]}" "${light_colors[3]}" "${light_colors[4]}" "${light_colors[5]}" ) )
+    log.debug "checkers" "light_colors = ${light_colors[@]}"
+
+    [[ "$brightness" == "dark" ]] && setters.final_colors "${dark_colors[@]}" || setters.final_colors "${light_colors[@]}"
+    log.debug "checkers" "final_colors = ${final_colors[@]}"
+}

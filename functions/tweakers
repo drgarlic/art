@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# ---
+# LOCAL
+# ---
+
+tweakers.color() {
+    local color_in_hsv=( $1 )
+    local H=${color_in_hsv[0]}
+    local S=${color_in_hsv[1]}
+    local V=${color_in_hsv[2]}
+
+    case "$2" in
+        "blk") [[ $V -gt 200 ]] && V=200 ;;
+        "dark_gry") 
+            (( V += 400 )) 
+            [[ $S -gt 400 ]] && S=400
+        ;;
+        "light_gry") 
+            (( V -= 400 ))
+            [[ $S -gt 400 ]] && S=400
+        ;;
+        "dark_rgb")
+            [[ $V -lt 750 ]] && V=750
+
+            [[ $S -lt 400 ]] && S=400
+            [[ $S -gt 800 ]] && S=800
+        ;;
+        "light_rgb")
+            [[ $V -lt 500 ]] && V=500
+            [[ $V -gt 750 ]] && V=750
+
+            [[ $S -lt 600 ]] && S=600
+        ;;
+        "wht")
+            [[ $V -lt 900 ]] && V=900
+
+            [[ $S -gt 100 ]] && S=100
+        ;;
+    esac
+
+    [[ $S -gt 1000 ]] && S=1000
+    [[ $S -lt 0 ]] && S=0
+    [[ $V -gt 1000 ]] && V=1000
+    [[ $V -lt 0 ]] && V=0
+
+    printf '%s\n' "$H $S $V"
+}
+
+# ---
+# GLOBAL
+# ---
+
+tweakers.theme() {
+    log.info "tweakers" "Tweaking the colors of the theme..."
+    log.debug "tweakers" "In tweakers.theme()"
+
+    dark_colors[0]="$( tweakers.color "${dark_colors[0]}" "blk" )"
+    dark_colors[1]="$( tweakers.color "${dark_colors[0]}" "dark_gry" )"
+    dark_colors[2]="$( tweakers.color "${dark_colors[2]}" "dark_rgb" )"
+    dark_colors[3]="$( tweakers.color "${dark_colors[3]}" "dark_rgb" )"
+    dark_colors[4]="$( tweakers.color "${dark_colors[4]}" "dark_rgb" )"
+    dark_colors[5]="$( tweakers.color "${dark_colors[5]}" "wht" )"
+    log.debug "tweakers" "dark_colors = ${dark_colors[@]}"
+
+    light_colors[0]="$( tweakers.color "${light_colors[0]}" "wht" )"
+    light_colors[1]="$( tweakers.color "${light_colors[0]}" "light_gry" )"
+    light_colors[2]="$( tweakers.color "${light_colors[2]}" "light_rgb" )"
+    light_colors[3]="$( tweakers.color "${light_colors[3]}" "light_rgb" )"
+    light_colors[4]="$( tweakers.color "${light_colors[4]}" "light_rgb" )"
+    light_colors[5]="$( tweakers.color "${light_colors[5]}" "blk" )"
+    log.debug "tweakers" "light_colors = ${light_colors[@]}"
+}

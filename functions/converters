@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+# ---
+# GLOBAL
+# ---
+
+converters.hex_to_hsv() {
+    local color_in_rgb=( $( pure.hex_to_rgb "$1" ) )
+
+    local R=$(( ( color_in_rgb[0] * 1000000 ) / 255 ))
+    local G=$(( ( color_in_rgb[1] * 1000000 ) / 255 ))
+    local B=$(( ( color_in_rgb[2] * 1000000 ) / 255 ))
+
+    local max=$( ( [[ $R -gt $B ]] && ( [[ $R -gt $G ]] && printf '%s\n' "$R") ) || \
+        ( [[ $G -gt $B ]] && printf '%s\n' "$G" ) || printf '%s\n' "$B" )
+    local min=$( ( [[ $R -lt $B ]] && ( [[ $R -lt $G ]] && printf '%s\n' "$R") ) || \
+        ( [[ $G -lt $B ]] && printf '%s\n' "$G" ) || printf '%s\n' "$B" )
+
+    local delta=$(( max - min ))
+
+    local H=0
+    local S=0
+    local V=$(( max / 100 ))
+    [[ $(( V % 10 )) -gt 4 ]] && (( V += 10 ))
+    (( V /= 10 ))
+
+    if [[ $delta != 0 ]]
+    then
+        [[ $max == 0 ]] && S=0 || S=$(( ( delta * 10000 ) / max ))
+        [[ $(( S % 10 )) -gt 4 ]] && (( S += 10 ))
+        (( S /= 10 ))
+
+        if [[ $R == $max ]]
+        then
+            H=$(( ( ( G - B ) * 100 ) / delta ))
+        elif [[ $G == $max ]]
+        then
+            H=$(( 200 + ( ( ( B - R ) * 100 ) / delta ) ))
+        elif [[ $B == $max ]]
+        then
+            H=$(( 400 + ( ( ( R - G ) * 100 ) / delta ) ))
+        fi
+
+        H=$(( ( H * 60 ) / 100 ))
+        [[ $H -lt 0 ]] && (( H += 360 ))
+    fi
+
+    printf '%s\n' "$H $S $V"
+}
+
+converters.hsv_to_hex() {
+    local H=$1
+    local S=$2
+    local V=$3
+
+    local R=0
+    local G=0
+    local B=0
+
+    if [[ $S == 0 ]]
+    then
+        V=$(( ( V * 255 ) / 100 ))
+        R=$V
+        G=$V
+        B=$V
+    else
+        local C=$(( V * S ))
+        
+        H=$(( ( H * 1000 ) / 6 ))
+        local value=$(( ( H % 20000 ) - 10000 ))
+        value=${value#-} # Absolute value
+        local X=$(( ( C * ( 10000 - value ) ) / 10000 ))
+        
+        local m=$(( ( V * 1000 ) - C ))
+        
+        (( H /= 10000 ))
+        case "$H" in
+            0)
+                R=$C
+                G=$X
+            ;;
+            1)
+                R=$X
+                G=$C
+            ;;
+            2)
+                G=$C
+                B=$X
+            ;;
+            3)
+                G=$X
+                B=$C
+            ;;
+            4)
+                R=$X
+                B=$C
+            ;;
+            5)
+                R=$C
+                B=$X
+            ;;
+        esac
+        
+        R=$(( ( ( R + m ) * 255 ) / 100000 ))
+        G=$(( ( ( G + m ) * 255 ) / 100000 ))
+        B=$(( ( ( B + m ) * 255 ) / 100000 ))
+    fi
+
+    [[ $(( R % 10 )) -gt 4 ]] && (( R += 10 ))
+    (( R /= 10 ))
+    [[ $(( G % 10 )) -gt 4 ]] && (( G += 10 ))
+    (( G /= 10 ))
+    [[ $(( B % 10 )) -gt 4 ]] && (( B += 10 ))
+    (( B /= 10 ))
+
+    pure.rgb_to_hex "$R" "$G" "$B"
+}

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# ---
+# LOCAL
+# ---
+
+updaters.terminals() {    
+    for term in /dev/pts/[0-9]*
+    do
+        [[ -w "$term" ]] && printf '%b' "$1" > "$term" &
+    done
+}
+
+# ---
+# GLOBAL
+# ---
+
+updaters.desktop() {
+    log.debug "updaters" "In updaters.desktop()"
+
+    log.info "updaters" "Updating via the EDITME file..."
+
+    . EDITME
+
+    log.info "updaters" "Updating X.org..."
+
+    xrdb "$HOME/.Xresources"
+
+    log.info "updaters" "Updating terminals..."
+
+    local sequences=$( setters.sequences ${final_colors[@]} )
+    updaters.terminals "$sequences"
+
+    log.info "updaters" "Updating the wallpaper..."
+
+    pure.check_program_in_path "feh" && feh --bg-fill ${thm_dir}/${theme}/wal* &> /dev/null || \
+        log.warning "updaters" "Couldn't set the picture as desktop background"
+}

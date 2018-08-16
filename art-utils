@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Description:              Art utilities
+# Dependencies:             art
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# GLOBAL
+# ---
+
+# Import functions and libraries
+art-utils.import() {
+    # Functions
+    . ${fun_dir}/arguments
+    . ${fun_dir}/checkers
+    . ${fun_dir}/converters
+    . ${fun_dir}/generators
+    . ${fun_dir}/helpers
+    . ${fun_dir}/initiators
+    . ${fun_dir}/setters
+    . ${fun_dir}/tweakers
+    . ${fun_dir}/updaters
+
+    # Libraries
+    . ${lib_dir}/log
+    . ${lib_dir}/pure
+}
+
+# Set various paths
+art-utils.paths() {
+    # Directories
+    art_dir="${HOME}/.art"
+    cnf_dir="${HOME}/.config/art"
+    fun_dir="${art_dir}/functions"
+    lib_dir="${art_dir}/libraries"
+    thm_dir="${cnf_dir}/themes"
+
+    # Files
+    conf_file="${cnf_dir}/art.conf"
+    xres_file="${HOME}/.Xresources.colors"
+}

@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+# ---
+# LOCAL
+# ---
+
+# Set the red-est, green-est and blue-est colors
+# /!\ CURRENTLY UNUSED, NEEDS AN UPDATE /!\ 
+setters.rgb() {
+    local old_R_ratio=-1337
+    local old_G_ratio=-1337
+    local old_B_ratio=-1337
+
+    local red
+    local grn
+    local blu
+
+    local i=0
+    for (( ; i < ${#initial_colors[@]}; i++ ))
+    do
+        local color_in_rgb=( $( pure.hex_to_rgb "${initial_colors[$i]}" ) )
+        local R=${color_in_rgb[0]}
+        local G=${color_in_rgb[1]}
+        local B=${color_in_rgb[2]}
+
+        local R_ratio=$(( ( R - G ) + ( R - B ) ))
+        local G_ratio=$(( ( G - R ) / 2 + ( G - B ) * 2 ))
+        local B_ratio=$(( ( B - G ) / 2 + ( B - R ) * 2 ))
+
+        [[ $R_ratio -gt $old_R_ratio ]] && old_R_ratio=$R_ratio && red=${initial_colors[$i]}
+        [[ $G_ratio -gt $old_G_ratio ]] && old_G_ratio=$G_ratio && grn=${initial_colors[$i]}
+        [[ $B_ratio -gt $old_B_ratio ]] && old_B_ratio=$B_ratio && blu=${initial_colors[$i]}
+    done
+
+    printf '%s\n' "$red $grn $blu"
+}
+
+setters.sequences_color() {
+    printf "\\033]4;${1};${2}\\007"
+}
+
+setters.sequences_special() {
+    printf "\\033]${1};${2}\\007"
+}
+
+# ---
+# GLOBAL
+# ---
+
+setters.final_colors() {
+    log.debug "setters" "In setters.final_colors()"
+
+    local args=( $@ )
+    for i in {0..5}; { [[ -z "${final_colors[$i]}" ]] && final_colors[$i]=${args[$i]}; }
+    log.debug "setters" "final_colors = ${final_colors[@]}"
+}
+
+# Set the sequences that I used to update already launched terminals
+setters.sequences() {
+    local blk="$1"
+    local gry="$2"
+    local red="$3"
+    local grn="$4"
+    local blu="$5"
+    local wht="$6"
+    local sequences=""
+
+    # spe
+    sequences+="$( setters.sequences_special 10  "$wht" )"
+    sequences+="$( setters.sequences_special 11  "$blk" )"
+    sequences+="$( setters.sequences_special 12  "$wht" )"
+    sequences+="$( setters.sequences_special 13  "$wht" )"
+    sequences+="$( setters.sequences_special 14  "$blk" )"
+    sequences+="$( setters.sequences_special 708 "$blk" )"
+
+    # blk
+    sequences+="$( setters.sequences_color 0  "$blk" )"
+    
+    # gry
+    sequences+="$( setters.sequences_color 8  "$gry" )"
+    
+    # red
+    sequences+="$( setters.sequences_color 1  "$red" )"
+    sequences+="$( setters.sequences_color 5  "$red" )"
+    sequences+="$( setters.sequences_color 9  "$red" )"
+    sequences+="$( setters.sequences_color 13 "$red" )"
+    
+    # grn
+    sequences+="$( setters.sequences_color 2  "$grn" )"
+    sequences+="$( setters.sequences_color 3  "$grn" )"
+    sequences+="$( setters.sequences_color 10 "$grn" )"
+    sequences+="$( setters.sequences_color 11 "$grn" )"
+    
+    # blu
+    sequences+="$( setters.sequences_color 4  "$blu" )"
+    sequences+="$( setters.sequences_color 6  "$blu" )"
+    sequences+="$( setters.sequences_color 12 "$blu" )"
+    sequences+="$( setters.sequences_color 14 "$blu" )"
+
+    # wht
+    sequences+="$( setters.sequences_color 7  "$wht")"
+    sequences+="$( setters.sequences_color 15 "$wht")"
+
+    # else
+    sequences+="\\033]4;66;${blk}\\007"
+
+    printf "$sequences"
+}
+
+# Set the two versions of the theme
+setters.theme() {
+    log.info "setters" "Setting the theme..."
+    log.debug "setters" "In setters.theme()"
+    
+    # local rgb_colors=( $( setters.rgb ) )
+
+    local blk=( $( converters.hex_to_hsv "${initial_colors[0]}" ) )
+    # local red=( $( converters.hex_to_hsv "${rgb_colors[0]}" ) )
+    local red=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 4 ))]}" ) )
+    # local red=( $( converters.hex_to_hsv "${rgb_colors[1]}" ) )
+    local grn=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 3 ))]}" ) )
+    # local red=( $( converters.hex_to_hsv "${rgb_colors[2]}" ) )
+    local blu=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 2 ))]}" ) )
+    local wht=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 1 ))]}" ) )
+
+    dark_colors[0]="${blk[@]}"
+    dark_colors[1]="${blk[@]}"
+    dark_colors[2]="${red[@]}"
+    dark_colors[3]="${grn[@]}"
+    dark_colors[4]="${blu[@]}"
+    dark_colors[5]="${wht[@]}"
+    log.debug "setters" "dark_colors = ${dark_colors[@]}"
+
+    light_colors=( "${dark_colors[@]}" )
+    light_colors[0]="${wht[@]}"
+    light_colors[1]="${wht[@]}"
+    light_colors[5]="${blk[@]}"
+    log.debug "setters" "light_colors = ${light_colors[@]}"
+}

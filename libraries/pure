@@ -1,0 +1,587 @@
+#!/usr/bin/env bash
+#
+#  | pur |  ||''. ||  | ||''. ||''|
+#  | bsh |  ||--' ||  | ||-+' ||-
+#  | bbl |  ||    `\__' ||  \ ||__|
+#
+# Description:              Library containing all the snipets from the Pure Bash Bible
+# Dependencies:             bash 4+
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# This library only contains the functions with almost no indication whatsoever on how to use them.
+# For more information please go directly to the original github: 
+# https://github.com/dylanaraps/pure-bash-bible
+#
+# Last time updated: 12 July 2018
+
+# ---
+# FOREWORD
+# ---
+
+# A collection of pure bash alternatives to external processes and programs. 
+# The bash scripting language is more powerful than people realise and most tasks can be accomplished 
+# without depending on external programs.
+#
+# Calling an external process in bash is expensive and excessive use will cause a noticeable slowdown. 
+# Scripts and programs written using built-in methods (where applicable) will be faster, 
+# require less dependencies and afford a better understanding of the language itself.
+#
+# The contents of this book provide a reference for solving problems encountered when writing programs 
+# and scripts in bash. Examples are in function formats showcasing how to incorporate these solutions into code.
+
+# ---
+# STRINGS
+# ---
+
+# Trim leading and trailing white-space from string
+pure.trim_string() {
+    # Usage: trim_string "   example   string    "
+    : "${1#"${1%%[![:space:]]*}"}"
+    : "${_%"${_##*[![:space:]]}"}"
+    printf '%s\n' "$_"
+}
+
+# Trim all white-space from string and truncate spaces
+pure.trim_all() {
+    # Usage: trim_all "   example   string    "
+    set -f
+    set -- $*
+    printf '%s\n' "$*"
+    set +f
+}
+
+# Use regex on a string
+pure.regex() {
+    # Usage: regex "string" "regex"
+    [[ $1 =~ $2 ]] && printf '%s\n' "${BASH_REMATCH[1]}"
+}
+
+# Split a string on a delimiter
+pure.split() {
+   # Usage: split "string" "delimiter"
+   IFS=$'\n' read -d "" -ra arr <<< "${1//$2/$'\n'}"
+   printf '%s\n' "${arr[@]}"
+}
+
+# Change a string to lowercase
+pure.lower() {
+    # Usage: lower "string"
+    printf '%s\n' "${1,,}"
+}
+
+# Change a string to uppercase
+pure.upper() {
+    # Usage: upper "string"
+    printf '%s\n' "${1^^}"
+}
+
+# Trim quotes from a string
+pure.trim_quotes() {
+    # Usage: trim_quotes "string"
+    : "${1//\'}"
+    printf '%s\n' "${_//\"}"
+}
+
+# Strip all instances of pattern from string
+pure.strip_all() {
+    # Usage: strip_all "string" "pattern"
+    printf '%s\n' "${1//$2}"
+}
+
+# Strip first occurrence of pattern from string
+pure.strip() {
+    # Usage: strip "string" "pattern"
+    printf '%s\n' "${1/$2}"
+}
+
+# Strip pattern from start of string
+pure.lstrip() {
+    # Usage: lstrip "string" "pattern"
+    printf '%s\n' "${1##$2}"
+}
+
+# Strip pattern from end of string
+pure.rstrip() {
+    # Usage: rstrip "string" "pattern"
+    printf '%s\n' "${1%%$2}"
+}
+
+# Check if string contains a sub-string
+pure.contains_substring() {
+    # Usage: contains_substring "string" "substring"
+    [[ "$1" == *"$2"* ]]
+}
+
+# Check if string starts with sub-string
+pure.starts_with_substring() {
+    # Usage: starts_with_substring "string" "substring"
+    [[ "$1" == "$2"* ]]
+}
+
+# Check if string ends with sub-string
+pure.ends_with_substring() {
+    # Usage: ends_with_substring "string" "substring"
+    [[ "$1" == *"$2" ]] 
+}
+
+# ---
+# ARRAYS
+# ---
+
+# Reverse an array
+pure.reverse_array() {
+    # Usage: reverse_array "array"
+    shopt -s extdebug
+    f()(printf '%s\n' "${BASH_ARGV[@]}"); f "$@"
+    shopt -u extdebug
+}
+
+# Remove duplicate array elements
+pure.remove_array_dups() {
+    # Usage: remove_array_dups "array"
+    declare -A tmp_array
+
+    for i in "$@"; do
+        [[ "$i" ]] && IFS=" " tmp_array["${i:- }"]=1
+    done
+
+    printf '%s\n' "${!tmp_array[@]}"
+}
+
+# Random array element
+pure.random_array_element() {
+    # Usage: random_array_element "array"
+    local arr=("$@")
+    printf '%s\n' "${arr[RANDOM % $#]}"
+}
+
+# Cycle through an array
+pure.cycle() {
+    printf '%s ' "${arr[${i:=0}]}"
+    ((i=i>=${#arr[@]}-1?0:++i))
+}
+
+# ---
+# LOOPS
+# ---
+
+# Loop over a range of numbers
+# Loop from 0-100 (no variable support).
+# for i in {0..100}; do
+#     printf '%s\n' "$i"
+# done
+
+# -
+
+# Loop over a variable range of numbers
+# Loop from 0-VAR.
+# VAR=50
+# for ((i=0;i<=VAR;i++)); do
+#     printf '%s\n' "$i"
+# done
+
+# -
+
+# Loop over an array
+# Just elements.
+# for element in "${arr[@]}"; do
+#     printf '%s\n' "$element"
+# done
+
+# -
+
+# Loop over an array with an index
+# Elements and index.
+# for i in "${!arr[@]}"; do
+#     printf '%s\n' "${arr[$i]}"
+# done
+
+# -
+
+# Loop over the contents of a file
+# while read -r line; do
+#     printf '%s\n' "$line"
+# done < "file"
+
+# -
+
+# Loop over files and directories
+# Greedy example.
+# for file in *; do
+#     printf '%s\n' "$file"
+# done
+
+# -
+
+# More on the official github
+
+# ---
+# FILE HANDLING
+# ---
+
+# Read a file to a string
+pure.file_to_string() {
+    # Usage file_to_string ".Xresources"
+    echo "$(<"$1")"
+}
+
+# Read a file to an array (by line)
+pure.file_to_array() {
+    # Usage file_to_array ".Xresources"
+    # Bash 4+
+    mapfile -t file_data < "$1"
+}
+
+# Get the first N lines of a file
+pure.head() {
+    # Usage: head "n" "file"
+    mapfile -tn "$1" line < "$2"
+    printf '%s\n' "${line[@]}"
+}
+
+# Get the last N lines of a file
+pure.tail() {
+    # Usage: tail "n" "file"
+    mapfile -tn 0 line < "$2"
+    printf '%s\n' "${line[@]: -$1}"
+}
+
+# Get the number of lines in a file
+pure.lines() {
+    # Usage: lines "file"
+    mapfile -tn 0 lines < "$1"
+    printf '%s\n' "${#lines[@]}"
+}
+
+# Count files or directories in directory
+pure.count() {
+    # Usage: count /path/to/dir/*
+    #        count /path/to/dir/*/
+    printf '%s\n' "$#"
+}
+
+# Create an empty file
+pure.touch() {
+    >"$1"
+}
+
+# Extract lines between two markers
+pure.extract() {
+    # Usage: extract file "opening marker" "closing marker"
+    while IFS=$'\n' read -r line; do
+        [[ "$extract" && "$line" != "$3" ]] && \
+            printf '%s\n' "$line"
+
+        [[ "$line" == "$2" ]] && extract=1
+        [[ "$line" == "$3" ]] && extract=
+    done < "$1"
+}
+
+# ---
+# FILE PATHS
+# ---
+
+# Get the directory name of a file path
+pure.dirname() {
+    # Usage: dirname "path"
+    printf '%s\n' "${1%/*}/"
+}
+
+# Get the base-name of a file path
+pure.basename() {
+    # Usage: basename "path"
+    : "${1%/}"
+    printf '%s\n' "${_##*/}"
+}
+
+# ---
+# VARIABLES
+# ---
+
+# Assign and access a variable using a variable
+
+# hello_world="test"
+
+# Create the variable name.
+# var1="world"
+# var2="hello_${var1}"
+
+# Print the value of the variable name stored in 'hello_$var1'.
+# printf '%s\n' "${!var2}"
+
+# ---
+# ESCAPE SEQUENCES
+# ---
+
+# Please take a look at the original github for that section
+
+# ---
+# PARAMETER EXPANSION
+# ---
+
+# Please take a look at the original github for that section
+
+# ---
+# ARITHMETIC
+# ---
+
+# Simpler syntax to set variables
+
+# Simple math
+# ((var=1+2))
+
+# Decrement/Increment variable
+# ((var++))
+# ((var--))
+# ((var+=1))
+# ((var-=1))
+
+# Using variables
+# ((var=var2*arr[2]))
+
+# -
+
+# Ternary Tests
+
+# Set the value of var to var2 if var2 is greater than var.
+# var: variable to set.
+# var2>var: Condition to test.
+# ?var2: If the test succeeds.
+# :var: If the test fails.
+# ((var=var2>var?var2:var))
+
+# ---
+# TRAPS
+# ---
+
+# Please take a look at the original github for that section
+
+# ---
+# PERFORMANCE
+# ---
+
+# Disable unicode.
+# LC_ALL=C
+# LANG=C
+
+# ---
+# OBSOLETE SYNTAX
+# ---
+
+# Shebang
+# Use: #!/usr/bin/env bash instead of #!/bin/bash
+
+# -
+
+# Command Substitution
+# Use: $() instead of ``
+
+# -
+
+# Function Declaration
+# Use:
+# fun() { }
+# Instead of:
+# function fun() { }
+
+# ---
+# INTERNAL VARIABLES
+# ---
+
+# Please take a look at the original github for that section
+
+# ---
+# INFORMATION ABOUT THE TERMINAL
+# ---
+
+# Get the terminal size in lines and columns (from a script)
+pure.get_term_size() {
+    # Usage: get_term_size
+
+    # (:;:) is a micro sleep to ensure the variables are
+    # exported immediately.
+    shopt -s checkwinsize; (:;:)
+    printf '%s\n' "$LINES $COLUMNS"
+}
+
+# Get the terminal size in pixels
+pure.get_window_size() {
+    # Usage: get_window_size
+    printf '%b' "${TMUX:+\\ePtmux;\\e}\\e[14t${TMUX:+\\e\\\\}"
+    IFS=';t' read -d t -t 0.05 -sra term_size
+    printf '%s\n' "${term_size[1]}x${term_size[2]}"
+}
+
+# Get the current cursor position
+pure.get_cursor_pos() {
+    # Usage: get_cursor_pos
+    IFS='[;' read -p $'\e[6n' -d R -rs _ y x _
+    printf '%s\n' "$x $y"
+}
+
+# ---
+# CONVERSION
+# ---
+
+# Convert a hex color to RGB
+pure.hex_to_rgb() {
+    # Usage: hex_to_rgb "#FFFFFF"
+    #        hex_to_rgb "000000"
+    : "${1/\#}"
+    ((r=16#${_:0:2},g=16#${_:2:2},b=16#${_:4:2}))
+    printf '%s\n' "$r $g $b"
+}
+
+# Convert an RGB color to hex
+pure.rgb_to_hex() {
+    # Usage: rgb_to_hex "r" "g" "b"
+    printf '#%02x%02x%02x\n' "$1" "$2" "$3"
+}
+
+# ---
+# CODE GOLF
+# ---
+
+# Shorter for loop syntax
+
+# Tiny C Style.
+# for((;i++<10;)){ echo "$i";}
+
+# Undocumented method.
+# for i in {1..10};{ echo "$i";}
+
+# Expansion.
+# for i in {1..10}; do echo "$i"; done
+
+# C Style.
+# for((i=0;i<=10;i++)); do echo "$i"; done
+
+# -
+
+# Shorter infinite loops
+
+# Normal method
+# while :; do echo hi; done
+
+# Shorter
+# for((;;)){ echo hi;}
+
+# -
+
+# Shorter function declaration
+
+# Normal method
+# f(){ echo hi;}
+
+# Using a subshell
+# f()(echo hi)
+
+# Using arithmetic
+# This can be used to assign integer values.
+# Example: f a=1
+#          f a++
+# f()(($1))
+
+# Using tests, loops etc.
+# NOTE: ‘while’, ‘until’, ‘case’, ‘(())’, ‘[[]]’ can also be used.
+# f()if true; then echo "$1"; fi
+# f()for i in "$@"; do echo "$i"; done
+
+# -
+
+# Shorter if syntax
+
+# One line
+# Note: The 3rd statement may run when the 1st is true
+# [[ "$var" == hello ]] && echo hi || echo bye
+# [[ "$var" == hello ]] && { echo hi; echo there; } || echo bye
+
+# Multi line (no else, single statement)
+# Note: The exit status may not be the same as with an if statement
+# [[ "$var" == hello ]] && \
+#     echo hi
+
+# Multi line (no else)
+# [[ "$var" == hello ]] && {
+#     echo hi
+#     # ...
+# }
+
+# ---
+# OTHER
+# ---
+
+# Use read as an alternative to the sleep command
+pure.read_sleep() {
+    # Usage: sleep 1
+    #        sleep 0.2
+    read -rst "${1:-1}" -N 999
+}
+
+# Check if a program is in the user's PATH
+pure.check_program_in_path() {
+    type -p "$1" &>/dev/null
+}
+
+# Get the current date using strftime
+pure.date() {
+    # Usage: date "format"
+    # See: 'man strftime' for format.
+    printf "%($1)T\\n" "-1"
+}
+
+# Generate a UUID V4
+pure.uuid() {
+    # Usage: uuid
+    local C="89ab"
+
+    for ((N=0;N<16;++N)); do
+        local B="$((RANDOM%256))"
+
+        case "$N" in
+            6)  printf '4%x' "$((B%16))" ;;
+            8)  printf '%c%x' "${C:$RANDOM%${#C}:1}" "$((B%16))" ;;
+
+            3|5|7|9)
+                printf '%02x-' "$B"
+            ;;
+
+            *)
+                printf '%02x' "$B"
+            ;;
+        esac
+    done
+
+    printf '\n'
+}
+
+# Progress bars
+pure.bar() {
+    # Usage: bar 1 10
+    #            ^----- Elapsed Percentage (0-100).
+    #               ^-- Total length in chars.
+    ((elapsed=$1*$2/100))
+
+    # Create the bar with spaces.
+    printf -v prog  "%${elapsed}s"
+    printf -v total "%$(($2-elapsed))s"
+
+    printf '%s\r' "[${prog// /-}${total}]"
+}
+
+# Get the list of functions in a script
+pure.get_functions() {
+    # Usage: get_functions
+    IFS=$'\n' read -d "" -ra functions < <(declare -F)
+    printf '%s\n' "${functions[@]//declare -f }"
+}
+
+# Bypass shell aliases
+# Example: \ls
+
+# Run a command in the background
+pure.bkr() {
+    (nohup "$@" &>/dev/null &)
+}

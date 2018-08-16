@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+#
+#    _|x  '||    //\   //''
+#   |X|    ||   ||  | ||  _
+#  /      .||_|  \\/   \\_/
+#
+# Description:              Minimal terminal logging
+# Dependencies:             none
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# VARIABLES
+# ---
+
+# Background
+bblk="\\e[40m"
+bred="\\e[41m"
+
+# Foreground
+fblk="\\e[30m"
+fgry="\\e[90m"
+fred="\\e[31m"
+fgrn="\\e[32m"
+fblu="\\e[34m"
+fwht="\\e[37m"
+
+# ---
+# LOCAL
+# ---
+
+log.print() {
+    local kind="$1"
+    local fgrd="$2"
+    local bgrd="$3"
+    local title="$4"
+    local description="${@:5}"
+    [[ -z "$title" ]] && title="test"
+    [[ -z "$description" ]] && description="Test"
+    printf "${fgry}[ ${bgrd}${fgrd}${kind}${bblk} ${fgry}]  ${fred}${title}${fgry}: ${fwht}${description}\n"
+}
+
+# ---
+# GLOBAL
+# ---
+
+# Getters
+
+log.is_quiet() {
+    [[ $log_quiet == true ]]
+}
+
+log.is_loud() {
+    [[ $log_quiet == false ]]
+}
+
+log.is_dev() {
+    [[ $log_dev == true ]]
+}
+
+log.is_casual() {
+    [[ $log_dev == false ]]
+}
+
+# Printers
+
+log.info() {
+    [[ $log_quiet == false ]] && log.print "  info " "$fblu" "$bblk" "$1" "${@:2}"
+}
+
+log.debug() {
+    [[ $log_dev == true ]] && log.print " debug " "$fgrn" "$bblk" "$1" "${@:2}"
+}
+
+log.warning() {
+    log.print "warning" "$fred" "$bblk" "$1" "${@:2}"
+}
+
+log.error() {
+    log.print " error " "$fblk" "$bred" "$1" "${@:2}"
+    exit 1
+}
+
+log.quit() {
+    log.info "$1" "${@:2}"
+    exit 0
+}
+
+# Setters
+
+log.quiet() {
+    log_quiet=true
+}
+
+log.loud() {
+    log_quiet=false
+}
+
+log.dev() {
+    log_dev=true
+}
+
+log.casual() {
+    log_dev=false
+}
+
+# ---
+# DEFAULTS
+# ---
+
+# Show info
+log.loud
+
+# Hide debug
+log.casual

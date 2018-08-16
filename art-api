@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Description:              Art api
+# Dependencies:             art
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# IMPORTS
+# ---
+
+. art-utils
+art-utils.paths
+art-utils.import
+
+# ---
+# GLOBAL
+# ---
+
+art-api.get_brightness() {
+    log.quiet
+    log.casual
+    initiators.read_conf
+    log.loud
+    printf '%s\n' "$brightness"
+}
+
+art-api.get_colors() {
+    log.quiet
+    log.casual
+    initiators.read_colors
+    log.loud
+    printf '%s\n' "${final_colors[@]}"
+}
+
+art-api.get_theme() {
+    log.quiet
+    log.casual
+    initiators.read_conf
+    log.loud
+    printf '%s\n' "$theme"
+}

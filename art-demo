@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Description:              A quick demonstration of some of art capabilities
+# Dependencies:             art
+# Optionnal dependencies:   none
+# Author:                   gawlk
+# Contributors:             none
+
+# ---
+# IMPORTS
+# ---
+
+. art-utils
+art-utils.paths
+art-utils.import
+
+# ---
+# MAIN
+# ---
+
+art-demo.main() {
+    # On exit reset terminal screen
+    trap 'printf "\\e[2J\\e[H"' EXIT
+
+    printf "\\e[2J\\e[H"
+
+    while :
+    do
+        art -q -s -ur
+        
+        printf "\\e[2J\\e[H"
+        pale
+        pure.read_sleep 2
+
+        art -q -s
+
+        printf "\\e[2J\\e[H"
+        pale
+        pure.read_sleep 3
+    done
+}
+
+# ---
+# LAUNCH
+# ---
+
+art-demo.main

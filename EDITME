@@ -1,21 +1,4 @@
 #!/usr/bin/env bash
 
-print "Updating xrdb..."
-xrdb "$HOME/.Xresources"
-
-print "Updating 2bwm..."
+# Reload 2bwm
 xdotool key "ctrl+super+r" &> /dev/null
-
-print "Updating polybar..."
-polybar-msg cmd restart &> /dev/null
-
-print "Updating dunst..."
-killall dunst &> /dev/null
-dunst \
-    -lb "$blk" \
-    -nb "$blk" \
-    -cb "$blk" \
-    -lf "$wht" \
-    -bf "$wht" \
-    -cf "$wht" \
-    -nf "$wht" &
