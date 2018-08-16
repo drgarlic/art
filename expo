@@ -48,7 +48,7 @@ expo.gen_readme() {
         then
             entry=$(pure.basename $entry) 
             printf '\n%s\n\n%s\n\n%s\n' "### ${entry}" "![${entry} dark](/${entry}/dark.png)" \
-                "![${entry} light](/${entry}/light.png)" >> $readme
+                "![${entry} light](${entry}/light.png)" >> $readme
         fi
     done
 }

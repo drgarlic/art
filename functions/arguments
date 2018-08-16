@@ -165,7 +165,7 @@ arguments.args() {
 
                 local old_theme=$theme
                 
-                while [[ "$theme" == "$old_theme" ]]
+                while [[ "$theme" == "$old_theme" || ! -d "${thm_dir}/$theme" ]]
                 do
                     log.debug "arguments" "In -r loop"
                     local themes=( ${thm_dir}/* )
