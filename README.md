@@ -1,6 +1,5 @@
 # art
 
-
 ## Caution
 
 **You will most likely have to edit the `EDITME` file since this script is at this moment only adapted for my dotfiles.**
@@ -73,3 +72,13 @@ Arguments:
 -ur | -unsplash-random              Create a theme using a random picture from Unsplash
 -wht                                Preset the white color
 ```
+
+## TODO
+
+- Improve the selection of rgb in setters.rgb()
+- Improve the ifs in checkers.colors()
+- Find the perfect balance in tweakers.color()
+
+## Contributors
+
+- [turquoise-hexagon](https://github.com/turquoise-hexagon)
