@@ -11,6 +11,7 @@ initiators.invalid_conf() {
 
 # Read a specific line in the configuration file and get the value
 initiators.read_line() {
+    [[ ! -f "$1" ]] && log.error "initiators" "$1 does not exist, please try a different theme."
     local array=( $( pure.split "$( pure.strip_all "$( grep "$2" < "$1" )" " " )" "=" ) )
     printf '%s\n' "${array[1]}"
 }
