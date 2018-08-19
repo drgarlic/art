@@ -17,7 +17,6 @@
 # - Improve the selection of rgb in setters.rgb()
 # - Improve the ifs in checkers.colors()
 # - Find the perfect balance in tweakers.color()
-# - A next and previous option
 
 # ---
 # IMPORTS

@@ -154,7 +154,24 @@ arguments.args() {
 
                 exit 0
             ;;
-            "-n" | "-name" )
+            "-n" | "-next" )
+                # Load the next theme from the list
+
+                [[ $( pure.count ${thm_dir}/*/ ) -lt 2 ]] && log.error "arguments" "There are not enough themes."
+
+                [[ -z "$theme" ]] && log.error "arguments" "Please load a theme first."
+                checkers.is_theme "$theme" || log.error "arguments" "Don't mix up too much arguments."
+
+                local list=( $thm_dir/*/ )
+                local index=0
+                while [[ "$( pure.basename "${list[$index]}" )" != "$theme" ]]; do (( index++ )); done;
+                
+                (( index++ ))
+                [[ $index == ${#list[@]} ]] && index=0
+
+                theme="$( pure.basename "${list[$index]}" )"
+            ;;
+            "-name" )
                 # Display the name of the current theme and exit
 
                 printf '%s\n' "Current theme:"
@@ -170,6 +187,23 @@ arguments.args() {
 
                 override=true
             ;;
+            "-p" | "-previous" )
+                # Load the previous theme from the list
+
+                [[ $( pure.count ${thm_dir}/*/ ) -lt 2 ]] && log.error "arguments" "There are not enough themes."
+
+                [[ -z "$theme" ]] && log.error "arguments" "Please load a theme first."
+                checkers.is_theme "$theme" || log.error "arguments" "Don't mix up too much arguments."
+
+                local list=( $thm_dir/*/ )
+                local index=0
+                while [[ "$( pure.basename "${list[$index]}" )" != "$theme" ]]; do (( index++ )); done;
+                
+                (( index-- ))
+                [[ $index -lt 0 ]] && index=${#list[@]} && (( index-- ))
+
+                theme="$( pure.basename "${list[$index]}" )"
+            ;;
             "-q" | "-quiet" )
                 # Disable info logs
 
@@ -178,7 +212,7 @@ arguments.args() {
             "-r" | "-random" )
                 # Select a random theme to load
 
-                [[ $( pure.count ${thm_dir}/*/ ) -lt 2 ]] && log.error "arguments" "There are not enough themes to shuffle"
+                [[ $( pure.count ${thm_dir}/*/ ) -lt 2 ]] && log.error "arguments" "There are not enough themes to shuffle."
 
                 local old_theme=$theme
                 
