@@ -4,7 +4,7 @@
 #  |o o <   //\  ||-+'   |
 #   \o o/  //''\ ||  \  .|
 #
-# Description:              Smart theme generator
+# Description:              A smart theme generator
 # Dependencies:             imagemagick, xorg
 # Optionnal dependencies:   feh, grep, wget, notf, lamp
 # Author:                   gawlk
@@ -17,6 +17,7 @@
 # - Improve the selection of rgb in setters.rgb()
 # - Improve the ifs in checkers.colors()
 # - Find the perfect balance in tweakers.color()
+# - A next and previous option
 
 # ---
 # IMPORTS

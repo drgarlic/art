@@ -116,6 +116,7 @@ initiators.read_colors() {
 
 # Read global values from the configuration file
 initiators.read_conf() {
+    log.info "initiators" "Reading the configuration file..."
     log.debug "initiators" "In initiators.read_conf()"
 
     theme=$( initiators.read_line "$conf_file" "theme = " )

@@ -2,6 +2,7 @@
 
 # Process arguments
 arguments.args() {
+    log.info "arguments" "Checking arguments..."
     log.debug "arguments" "In arguments.args()"
 
     local i=0 
@@ -39,12 +40,14 @@ arguments.args() {
                 checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
                 
                 checkers.is_theme "${args[$i]}" && theme="${args[$i]}" || \
-                    log.error "arguments" "The provided theme name is incorrect"
+                    log.error "arguments" "The provided theme name is incorrect."
                 
                 (( i++ ))
                 checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
+                checkers.is_theme "${args[$i]}" && log.error "arguments" "A theme with this name already exists."
 
                 cp -R "${thm_dir}/${theme}" "${thm_dir}/${args[$i]}"
+                log.info "arguments" "Theme copied !"
 
                 exit 0
             ;;
@@ -52,6 +55,20 @@ arguments.args() {
                 # Set the brightness of the theme to dark
 
                 brightness="dark"
+            ;;
+            "-delete" )
+                # Delete a theme and exit
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments."
+
+                checkers.is_theme "${args[$i]}" || log.error "arguments" "The given argument isn't a theme."
+
+                [[ "$theme" == "${args[$i]}" ]] && log.error "arguments" "You can't delete a theme that are currently using."
+
+                rm -R "${thm_dir}/${args[$i]}"
+
+                log.quit "arguments" "Theme deleted."
             ;;
             "-grn" )
                 # Preset the green color
@@ -173,26 +190,26 @@ arguments.args() {
                 done
                 log.debug "arguments" "theme = $theme"
             ;;
+            "-red" )
+                # Preset the red color
+
+                (( i++ ))
+                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments."
+
+                checkers.is_hex "${args[$i]}" && final_colors[2]="${args[$i]}" || \
+                    log.error "arguments" "Please provide a correct color"
+                log.debug "arguments" "final_colors = ${final_colors[@]}"
+            ;;
             "-reload" )
                 # Reload the current theme
 
-                checkers.is_theme "$theme" || log.error "arguments" "Couldn't reload the theme"
+                checkers.is_theme "$theme" || log.error "arguments" "Couldn't reload the theme."
 
                 wallpaper=$( realpath ${thm_dir}/${theme}/wallpaper* )
 
                 reload=true
                 create=true
                 override=true
-            ;;
-            "-red" )
-                # Preset the red color
-
-                (( i++ ))
-                checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
-
-                checkers.is_hex "${args[$i]}" && final_colors[2]="${args[$i]}" || \
-                    log.error "arguments" "Please provide a correct color"
-                log.debug "arguments" "final_colors = ${final_colors[@]}"
             ;;
             "-s" | "-swap" )
                 # Swap the value of the current brightness

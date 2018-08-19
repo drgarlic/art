@@ -16,6 +16,7 @@ Arguments:
 -blu                                Preset the blue color
 -c | -copy \"theme\" \"name\"           Copy a theme and exit
 -dark                               Set the brightness of the theme to dark
+-delete \"theme\"                     Delete a theme and exit
 -grn                                Preset the green color
 -gry                                Preset the grey color
 -h | -help                          Display this menu and exit
@@ -27,8 +28,8 @@ Arguments:
 -o | -override                      Enable overriding of existing themes (one-time only)
 -q | -quiet                         Disable logs
 -r | -random                        Select a random theme to load
--reload                             Rewrite the configuration of the current theme (for devs)
 -red                                Preset the red color
+-reload                             Rewrite the configuration of the current theme (for devs)
 -s | -swap                          Swap the brightness of the current theme
 -t | -theme \"theme\"                 Load a particular theme
 -ua | -unsplash-artist \"name\"       Create a theme using a random picture from an Unsplash's artist
