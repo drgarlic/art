@@ -11,7 +11,7 @@ initiators.invalid_conf() {
 
 # Read a specific line in the configuration file and get the value
 initiators.read_line() {
-    [[ ! -f "$1" ]] && log.error "initiators" "$1 does not exist, please try a different theme."
+    [[ ! -f "$1" ]] && return 1
     local array=( $( pure.split "$( pure.strip_all "$( grep "$2" < "$1" )" " " )" "=" ) )
     printf '%s\n' "${array[1]}"
 }
@@ -93,22 +93,22 @@ initiators.read_colors() {
         file="${thm_dir}/${theme}/${brightness}.conf"
 
     local blk=$( initiators.read_line "$file" "blk = " )
-    [[ -n "$blk" ]] && ! checkers.is_hex "$blk" && initiators.invalid_conf "blk color" && blk="#000000"
+    ( [[ -z "$blk" ]] || ! checkers.is_hex "$blk" ) && initiators.invalid_conf "blk color" && blk="#000000"
     log.debug "initiators" "blk = $blk"
     local gry=$( initiators.read_line "$file" "gry = " )
-    [[ -n "$gry" ]] && ! checkers.is_hex "$gry" && initiators.invalid_conf "gry color" && gry="#444444"
+    ( [[ -z "$gry" ]] || ! checkers.is_hex "$gry" ) && initiators.invalid_conf "gry color" && gry="#444444"
     log.debug "initiators" "gry = $gry"
     local red=$( initiators.read_line "$file" "red = " )
-    [[ -n "$red" ]] && ! checkers.is_hex "$red" && initiators.invalid_conf "red color" && red="#bb8888"
+    ( [[ -z "$red" ]] || ! checkers.is_hex "$red" ) && initiators.invalid_conf "red color" && red="#bb8888"
     log.debug "initiators" "red = $red"
     local grn=$( initiators.read_line "$file" "grn = " )
-    [[ -n "$grn" ]] && ! checkers.is_hex "$grn" && initiators.invalid_conf "grn color" && grn="#88bb88"
+    ( [[ -z "$grn" ]] || ! checkers.is_hex "$grn" ) && initiators.invalid_conf "grn color" && grn="#88bb88"
     log.debug "initiators" "grn = $grn"
     local blu=$( initiators.read_line "$file" "blu = " )
-    [[ -n "$blu" ]] && ! checkers.is_hex "$blu" && initiators.invalid_conf "blu color" && blu="#8888bb"
+    ( [[ -z "$blu" ]] || ! checkers.is_hex "$blu" ) && initiators.invalid_conf "blu color" && blu="#8888bb"
     log.debug "initiators" "blu = $blu"
     local wht=$( initiators.read_line "$file" "wht = " )
-    [[ -n "$wht" ]] && ! checkers.is_hex "$wht" && initiators.invalid_conf "wht color" && wht="#eeeeee"
+    ( [[ -z "$wht" ]] || ! checkers.is_hex "$wht" ) && initiators.invalid_conf "wht color" && wht="#eeeeee"
     log.debug "initiators" "wht = $wht"
 
     setters.final_colors "$blk" "$gry" "$red" "$grn" "$blu" "$wht"
