@@ -134,10 +134,10 @@ initiators.read_conf() {
     log.debug "initiators" "brightness = $brightness"
     log.debug "initiators" "last_brightness = $last_brightness"
 
-    unsplash_artist=$( initiators.read_line "$conf_file" "artist = " )
+    unsplash_artist="$( initiators.read_line "$conf_file" "artist = " )"
     log.debug "initiators" "unsplash_artist = $unsplash_artist"
 
-    unsplash_collection=$( initiators.read_line "$conf_file" "collection = " )
+    unsplash_collection="$( initiators.read_line "$conf_file" "collection = " )"
     log.debug "initiators" "unsplash_collection = $unsplash_collection"
 }
 
@@ -149,7 +149,7 @@ initiators.theme_folder() {
     mkdir -p "${thm_dir}/${theme}"
 
     local extension="${wallpaper##*.}"
-    log.debug "initiators" "extension = $extension"    
+    log.debug "initiators" "extension = $extension"
     checkers.is_extension "$extension" || log.error "arguments" "The extension of the picture must be jpg or png"
 
     [[ $reload != true ]] && ( cp "$wallpaper" "${thm_dir}/${theme}/wallpaper.${extension}" &> /dev/null || \

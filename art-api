@@ -19,10 +19,7 @@ art-utils.import
 # ---
 
 art-api.get_brightness() {
-    log.quiet
-    log.casual
-    initiators.read_conf
-    log.loud
+    local brightness=$( initiators.read_line "$conf_file" "brightness = " )
     printf '%s\n' "$brightness"
 }
 
@@ -35,9 +32,6 @@ art-api.get_colors() {
 }
 
 art-api.get_theme() {
-    log.quiet
-    log.casual
-    initiators.read_conf
-    log.loud
+    local theme=$( initiators.read_line "$conf_file" "theme = " )
     printf '%s\n' "$theme"
 }
