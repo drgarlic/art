@@ -6,7 +6,7 @@
 
 # Small warning if something is found wrong in the configuration file
 initiators.invalid_conf() {
-    log.warning "initiators" "Invalid $1 in the configuration file"
+    log.error "initiators" "Invalid $1 in the configuration file. Please remove the file or fix it."
 }
 
 # Read a specific line in the configuration file and get the value
@@ -93,22 +93,22 @@ initiators.read_colors() {
         file="${thm_dir}/${theme}/${brightness}.conf"
 
     local blk=$( initiators.read_line "$file" "blk = " )
-    ( [[ -z "$blk" ]] || ! checkers.is_hex "$blk" ) && initiators.invalid_conf "blk color" && blk="#000000"
+    ( [[ -z "$blk" ]] || ! checkers.is_hex "$blk" ) && initiators.invalid_conf "blk color"
     log.debug "initiators" "blk = $blk"
     local gry=$( initiators.read_line "$file" "gry = " )
-    ( [[ -z "$gry" ]] || ! checkers.is_hex "$gry" ) && initiators.invalid_conf "gry color" && gry="#444444"
+    ( [[ -z "$gry" ]] || ! checkers.is_hex "$gry" ) && initiators.invalid_conf "gry color"
     log.debug "initiators" "gry = $gry"
     local red=$( initiators.read_line "$file" "red = " )
-    ( [[ -z "$red" ]] || ! checkers.is_hex "$red" ) && initiators.invalid_conf "red color" && red="#bb8888"
+    ( [[ -z "$red" ]] || ! checkers.is_hex "$red" ) && initiators.invalid_conf "red color"
     log.debug "initiators" "red = $red"
     local grn=$( initiators.read_line "$file" "grn = " )
-    ( [[ -z "$grn" ]] || ! checkers.is_hex "$grn" ) && initiators.invalid_conf "grn color" && grn="#88bb88"
+    ( [[ -z "$grn" ]] || ! checkers.is_hex "$grn" ) && initiators.invalid_conf "grn color"
     log.debug "initiators" "grn = $grn"
     local blu=$( initiators.read_line "$file" "blu = " )
-    ( [[ -z "$blu" ]] || ! checkers.is_hex "$blu" ) && initiators.invalid_conf "blu color" && blu="#8888bb"
+    ( [[ -z "$blu" ]] || ! checkers.is_hex "$blu" ) && initiators.invalid_conf "blu color"
     log.debug "initiators" "blu = $blu"
     local wht=$( initiators.read_line "$file" "wht = " )
-    ( [[ -z "$wht" ]] || ! checkers.is_hex "$wht" ) && initiators.invalid_conf "wht color" && wht="#eeeeee"
+    ( [[ -z "$wht" ]] || ! checkers.is_hex "$wht" ) && initiators.invalid_conf "wht color"
     log.debug "initiators" "wht = $wht"
 
     setters.final_colors "$blk" "$gry" "$red" "$grn" "$blu" "$wht"
@@ -121,15 +121,13 @@ initiators.read_conf() {
     log.debug "initiators" "In initiators.read_conf()"
 
     theme=$( initiators.read_line "$conf_file" "theme = " )
-    [[ -n "$theme" ]] && ! checkers.is_theme "$theme" && \
-        initiators.invalid_conf "theme name" && theme=""
+    [[ -n "$theme" ]] && ! checkers.is_theme "$theme" && initiators.invalid_conf "theme name"
     last_theme="$theme"
     log.debug "initiators" "theme = $theme"
     log.debug "initiators" "last_theme = $last_theme"
     
     brightness=$( initiators.read_line "$conf_file" "brightness = " )
-    [[ -n "$brightness" ]] && ! checkers.is_brightness "$brightness" && \
-        initiators.invalid_conf "brightness value" && brightness="dark"
+    [[ -n "$brightness" ]] && ! checkers.is_brightness "$brightness" && initiators.invalid_conf "brightness value"
     last_brightness="$brightness"
     log.debug "initiators" "brightness = $brightness"
     log.debug "initiators" "last_brightness = $last_brightness"

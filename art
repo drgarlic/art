@@ -17,6 +17,7 @@
 # - Improve the selection of rgb in setters.rgb()
 # - Improve the ifs in checkers.colors()
 # - Find the perfect balance in tweakers.color()
+# - Make all global variables start with "art_"
 
 # ---
 # IMPORTS
@@ -59,7 +60,7 @@ art.main() {
 
     arguments.args
 
-    # If new theme or -o paramater
+    # If new theme or -o argument
     if [[ $create == true ]]
     then
         initiators.theme_folder
