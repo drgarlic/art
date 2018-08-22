@@ -37,31 +37,44 @@ nb_lines=4
 # LOCAL
 # ---
 
-pale.args() {
+pale.arguments() {
     local i=0 
 
     # Loop that will go through each and every argument
     while [[ $i != $nb_args ]]
     do
         case "${args[$i]}" in
-            "-n" )
+            "-h" | "-help" )
+                # Display a helping text and exit
+                
+                printf '\n%s\n\n'   "pale - Display the color palette"
+
+                printf '%s\n'     "Arguments:"
+                printf '%s\n'     "(none)           Launch pale"
+                printf '%s\n'     "-h | -help       Display this menu and exit"
+                printf '%s\n'     "-n | -number     Set a different number of colored lines"
+                printf '%s\n\n'   "-p | -preview    Take a screenshot of the terminal"
+
+                exit 0
+            ;;
+            "-n" | "-number" )
                 # Choose the number of times the color line should be displayed
 
                 (( i++ ))
                 checkers.is_argument_s_value "${args[$i]}" || log.error "arguments" "Please provide correct values to arguments"
 
                 nb_lines="${args[$i]}"
-                [[ $nb_lines -lt 1 ]] && nb_lines=1
+                [[ $nb_lines -lt 0 ]] && nb_lines=0
             ;;
-            "-s" )
-                # Enable the screenshot value
+            "-p" | "-preview" )
+                # Take a screenshot of the terminal
 
-                screenshot=true
+                preview=true
             ;;
             * )
                 # Display an error on invalid arguments
 
-                log.error "arguments" "Invalid argument, please try again"
+                log.error "arguments" "Invalid argument, please try again\n$( pale -h )"
             ;;
         esac
 
@@ -74,7 +87,7 @@ pale.args() {
 # ---
 
 pale.main() {
-    pale.args
+    pale.arguments
 
     local colors=( $( art-api.get_colors ) )
 
@@ -108,7 +121,7 @@ pale.main() {
     printf " ${xblk}  ${fgry}${xgry}  ${fred}${xred}  ${fgrn}${xgrn}  ${fblu}${xblu}  ${fwht}${xwht}\n"
     printf "\n"
 
-    if [[ $screenshot == true ]]
+    if [[ $preview == true ]]
     then
         pure.read_sleep 0.1
         local theme=$( art-api.get_theme )

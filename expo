@@ -30,7 +30,7 @@ LANG=C
 
 expo.preview() {
     pure.read_sleep 0.5
-    urxvtc -geometry 54x7 -e pale -s
+    urxvtc -geometry 54x7 -e pale -p
     pure.read_sleep 0.5
 
     local theme=$( art-api.get_theme )

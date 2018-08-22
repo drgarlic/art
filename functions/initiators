@@ -12,8 +12,8 @@ initiators.invalid_conf() {
 # Read a specific line in the configuration file and get the value
 initiators.read_line() {
     [[ ! -f "$1" ]] && return 1
-    local array=( $( pure.split "$( pure.strip_all "$( grep "$2" < "$1" )" " " )" "=" ) )
-    printf '%s\n' "${array[1]}"
+    local array=( $( grep -Po "(?<=    $2 = ).*" < "$1" ) )
+    printf '%s\n' "${array[@]}"
 }
 
 # ---
@@ -92,22 +92,22 @@ initiators.read_colors() {
     ( [[ "$theme" != "$last_theme" ]] || [[ "$brightness" != "$last_brightness" ]] ) && \
         file="${thm_dir}/${theme}/${brightness}.conf"
 
-    local blk=$( initiators.read_line "$file" "blk = " )
+    local blk=$( initiators.read_line "$file" "blk" )
     ( [[ -z "$blk" ]] || ! checkers.is_hex "$blk" ) && initiators.invalid_conf "blk color"
     log.debug "initiators" "blk = $blk"
-    local gry=$( initiators.read_line "$file" "gry = " )
+    local gry=$( initiators.read_line "$file" "gry" )
     ( [[ -z "$gry" ]] || ! checkers.is_hex "$gry" ) && initiators.invalid_conf "gry color"
     log.debug "initiators" "gry = $gry"
-    local red=$( initiators.read_line "$file" "red = " )
+    local red=$( initiators.read_line "$file" "red" )
     ( [[ -z "$red" ]] || ! checkers.is_hex "$red" ) && initiators.invalid_conf "red color"
     log.debug "initiators" "red = $red"
-    local grn=$( initiators.read_line "$file" "grn = " )
+    local grn=$( initiators.read_line "$file" "grn" )
     ( [[ -z "$grn" ]] || ! checkers.is_hex "$grn" ) && initiators.invalid_conf "grn color"
     log.debug "initiators" "grn = $grn"
-    local blu=$( initiators.read_line "$file" "blu = " )
+    local blu=$( initiators.read_line "$file" "blu" )
     ( [[ -z "$blu" ]] || ! checkers.is_hex "$blu" ) && initiators.invalid_conf "blu color"
     log.debug "initiators" "blu = $blu"
-    local wht=$( initiators.read_line "$file" "wht = " )
+    local wht=$( initiators.read_line "$file" "wht" )
     ( [[ -z "$wht" ]] || ! checkers.is_hex "$wht" ) && initiators.invalid_conf "wht color"
     log.debug "initiators" "wht = $wht"
 
@@ -120,22 +120,22 @@ initiators.read_conf() {
     log.info "initiators" "Reading the configuration file..."
     log.debug "initiators" "In initiators.read_conf()"
 
-    theme=$( initiators.read_line "$conf_file" "theme = " )
+    theme=$( initiators.read_line "$conf_file" "theme" )
     [[ -n "$theme" ]] && ! checkers.is_theme "$theme" && initiators.invalid_conf "theme name"
     last_theme="$theme"
     log.debug "initiators" "theme = $theme"
     log.debug "initiators" "last_theme = $last_theme"
     
-    brightness=$( initiators.read_line "$conf_file" "brightness = " )
+    brightness=$( initiators.read_line "$conf_file" "brightness" )
     [[ -n "$brightness" ]] && ! checkers.is_brightness "$brightness" && initiators.invalid_conf "brightness value"
     last_brightness="$brightness"
     log.debug "initiators" "brightness = $brightness"
     log.debug "initiators" "last_brightness = $last_brightness"
 
-    unsplash_artist="$( initiators.read_line "$conf_file" "artist = " )"
+    unsplash_artist="$( initiators.read_line "$conf_file" "artist" )"
     log.debug "initiators" "unsplash_artist = $unsplash_artist"
 
-    unsplash_collection="$( initiators.read_line "$conf_file" "collection = " )"
+    unsplash_collection="$( initiators.read_line "$conf_file" "collection" )"
     log.debug "initiators" "unsplash_collection = $unsplash_collection"
 }
 

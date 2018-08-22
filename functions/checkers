@@ -89,7 +89,7 @@ checkers.is_extension() {
 }
 
 checkers.is_hex() {
-    [[ "$1" =~ ^(#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$ ]]
+    [[ "$1" =~ ^(#[a-fA-F0-9]{6})$ ]]
 }
 
 checkers.is_theme() {

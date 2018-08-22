@@ -75,6 +75,7 @@ setters.sequences() {
 
     # blk
     sequences+="$( setters.sequences_color 0  "$blk" )"
+    sequences+="$( setters.sequences_color 66 "$blk" )"
     
     # gry
     sequences+="$( setters.sequences_color 8  "$gry" )"
@@ -98,11 +99,8 @@ setters.sequences() {
     sequences+="$( setters.sequences_color 14 "$blu" )"
 
     # wht
-    sequences+="$( setters.sequences_color 7  "$wht")"
-    sequences+="$( setters.sequences_color 15 "$wht")"
-
-    # else
-    sequences+="\\033]4;66;${blk}\\007"
+    sequences+="$( setters.sequences_color 7  "$wht" )"
+    sequences+="$( setters.sequences_color 15 "$wht" )"
 
     printf "$sequences"
 }

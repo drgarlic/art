@@ -18,6 +18,8 @@
 # - Improve the ifs in checkers.colors()
 # - Find the perfect balance in tweakers.color()
 # - Make all global variables start with "art_"
+# - Add an option to clear all art conf files
+# - Add the -reload-all option
 
 # ---
 # IMPORTS
