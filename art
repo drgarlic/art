@@ -20,6 +20,7 @@
 # - Make all global variables start with "art_"
 # - Add an option to clear all art conf files
 # - Add the -reload-all option
+# - Add an option to have monocolor background
 
 # ---
 # IMPORTS

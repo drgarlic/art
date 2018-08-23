@@ -50,10 +50,10 @@ pale.arguments() {
                 printf '\n%s\n\n'   "pale - Display the color palette"
 
                 printf '%s\n'     "Arguments:"
-                printf '%s\n'     "(none)           Launch pale"
-                printf '%s\n'     "-h | -help       Display this menu and exit"
-                printf '%s\n'     "-n | -number     Set a different number of colored lines"
-                printf '%s\n\n'   "-p | -preview    Take a screenshot of the terminal"
+                printf '%s\n'     "(none)                   Launch pale"
+                printf '%s\n'     "-h | -help               Display this menu and exit"
+                printf '%s\n'     "-n | -number \"number\"    Set a different number of colored lines"
+                printf '%s\n\n'   "-p | -preview            Take a screenshot of the terminal"
 
                 exit 0
             ;;

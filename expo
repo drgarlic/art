@@ -47,7 +47,7 @@ expo.gen_readme() {
         if [[ -d "$entry" && "$entry" != *"unsplash-"* ]]
         then
             entry=$(pure.basename $entry) 
-            printf '\n%s\n\n%s\n\n%s\n' "### ${entry}" "![${entry} dark](/${entry}/dark.png)" \
+            printf '\n%s\n\n%s\n\n%s\n' "### ${entry}" "![${entry} dark](${entry}/dark.png)" \
                 "![${entry} light](${entry}/light.png)" >> $readme
         fi
     done
