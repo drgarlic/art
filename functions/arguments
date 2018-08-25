@@ -334,7 +334,7 @@ arguments.args() {
             "-ud" | "-unsplash-daily" )
                 # Create a theme using the picture of the day from Unsplash
 
-                local tmp1="/home/gawk/Downloads/unsplash"
+                local tmp1="/tmp/unsplash"
                 local tmp2="/tmp/unsplash2"
 
                 wallpaper="/tmp/unsplash.jpg"
