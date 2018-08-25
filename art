@@ -87,7 +87,7 @@ art.main() {
 
     log.is_loud && pale -n 1 && pure.check_program_in_path "notf" && notf "Theme: $theme"
 
-    pure.check_program_in_path "lamp" && lamp
+    pure.check_program_in_path "lamp" && lamp -f
 }
 
 # ---
