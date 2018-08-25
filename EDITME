@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 # Reload 2bwm
-xdotool key "ctrl+super+r" &> /dev/null
+xdotool key "super+r" &> /dev/null

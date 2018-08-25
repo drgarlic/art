@@ -51,6 +51,22 @@ arguments.args() {
 
                 exit 0
             ;;
+            "-clear" )
+                # Clear all config files
+
+                [[ -f "$conf_file" ]] && rm "$conf_file"
+                [[ -f "$lamp_file" ]] && rm "$lamp_file"
+                [[ -f "$xres_file" ]] && rm "$xres_file"
+            ;;
+            "-clear-all" )
+                # Clear all config files and themes
+
+                [[ -f "$conf_file" ]] && rm "$conf_file"
+                [[ -f "$lamp_file" ]] && rm "$lamp_file"
+                [[ -f "$xres_file" ]] && rm "$xres_file"
+
+                [[ -d "$thm_dir" ]] && rm -R "$thm_dir"
+            ;;
             "-dark" )
                 # Set the brightness of the theme to dark
 
@@ -244,6 +260,23 @@ arguments.args() {
                 reload=true
                 create=true
                 override=true
+            ;;
+            "-reload-all" )
+                # Reload all the themes one by one and exit
+
+                local old_theme="$theme"
+                
+                art -q -reload
+                art -q -next
+
+                . art-api
+                while [[ "$( art-api.get_theme )" != "$old_theme" ]]
+                do
+                    art -q -reload
+                    art -q -next
+                done
+
+                log.quit "arguments" "Done !"
             ;;
             "-s" | "-swap" )
                 # Swap the value of the current brightness

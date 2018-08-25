@@ -39,5 +39,6 @@ art-utils.paths() {
 
     # Files
     conf_file="${cnf_dir}/art.conf"
+    lamp_file="${cnf_dir}/.lamp.cache"
     xres_file="${HOME}/.Xresources.colors"
 }
