@@ -37,7 +37,7 @@ Each generated theme is saved in a special folder, that can be accessed at any t
 cd WHEREVER_YOU_WANT
 git clone https://github.com/gawlk/art.git
 cd art
-echo "PATH="${PATH}:$( pwd )" >> ${HOME}/.bashrc
+echo "PATH="${PATH}:$( pwd )"" >> ${HOME}/.bashrc
 ```
 
 ## How to use ?
