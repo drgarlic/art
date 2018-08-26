@@ -87,4 +87,5 @@ Arguments:
 
 ## Contributors
 
-- [turquoise-hexagon](https://github.com/turquoise-hexagon)
+- Marin ([turquoise-hexagon](https://github.com/turquoise-hexagon))
+- Gavin Day ([mngad](https://github.com/mngad))
