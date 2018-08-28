@@ -37,7 +37,7 @@ Each generated theme is saved in a special folder, that can be accessed at any t
 cd WHEREVER_YOU_WANT
 git clone https://github.com/gawlk/art.git
 cd art
-echo "PATH="${PATH}:$( pwd )" >> ${HOME}/.bashrc
+echo "PATH="${PATH}:$( pwd )"" >> ${HOME}/.bashrc
 ```
 
 ## How to use ?
@@ -50,6 +50,8 @@ Arguments:
 -blk                                Preset the black color
 -blu                                Preset the blue color
 -c | -copy "theme" "name"           Copy a theme and exit
+-clear                              Clear all configuration files
+-clear-all                          Clear all configuration files and delete the theme folder
 -dark                               Set the brightness of the theme to dark
 -delete "theme"                     Delete a theme and exit
 -grn                                Preset the green color
@@ -66,7 +68,8 @@ Arguments:
 -q | -quiet                         Disable logs
 -r | -random                        Select a random theme to load
 -red                                Preset the red color
--reload                             Rewrite the configuration of the current theme (for devs)
+-reload                             Regenerate the configuration of the current theme (for devs)
+-reload-all                         Regenerate the configuration of all the themes (for devs)
 -s | -swap                          Swap the brightness of the current theme
 -t | -theme "theme"                 Load a particular theme
 -ua | -unsplash-artist "name"       Create a theme using a random picture from an Unsplash's artist
@@ -84,4 +87,5 @@ Arguments:
 
 ## Contributors
 
-- [turquoise-hexagon](https://github.com/turquoise-hexagon)
+- Marin ([turquoise-hexagon](https://github.com/turquoise-hexagon))
+- Gavin Day ([mngad](https://github.com/mngad))
