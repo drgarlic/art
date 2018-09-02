@@ -67,12 +67,18 @@ art.main() {
         initiators.theme_folder
 
         generators.colors
+        
+        #converters.theme_to_hsv
 
         setters.theme
 
         tweakers.theme
 
         checkers.theme
+
+        #converters.theme_to_hex
+
+        [[ "$brightness" == "dark" ]] && setters.final_colors "${dark_colors[@]}" || setters.final_colors "${light_colors[@]}"
 
         generators.theme_files
     else

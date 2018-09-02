@@ -75,34 +75,34 @@ setters.sequences() {
     sequences+="$( setters.sequences_special 708 "$blk" )"
 
     # blk
-    sequences+="$( setters.sequences_color 0   "$blk" )"
-    sequences+="$( setters.sequences_color 232 "$blk" )"
+    sequences+="$( setters.sequences_color   0   "$blk" )"
+    sequences+="$( setters.sequences_color   232 "$blk" )"
     
     # gry
-    sequences+="$( setters.sequences_color 8   "$gry" )"
+    sequences+="$( setters.sequences_color   8   "$gry" )"
     
     # red
-    sequences+="$( setters.sequences_color 1   "$red" )"
-    sequences+="$( setters.sequences_color 5   "$red" )"
-    sequences+="$( setters.sequences_color 9   "$red" )"
-    sequences+="$( setters.sequences_color 13  "$red" )"
+    sequences+="$( setters.sequences_color   1   "$red" )"
+    sequences+="$( setters.sequences_color   5   "$red" )"
+    sequences+="$( setters.sequences_color   9   "$red" )"
+    sequences+="$( setters.sequences_color   13  "$red" )"
     
     # grn
-    sequences+="$( setters.sequences_color 2   "$grn" )"
-    sequences+="$( setters.sequences_color 3   "$grn" )"
-    sequences+="$( setters.sequences_color 10  "$grn" )"
-    sequences+="$( setters.sequences_color 11  "$grn" )"
+    sequences+="$( setters.sequences_color   2   "$grn" )"
+    sequences+="$( setters.sequences_color   3   "$grn" )"
+    sequences+="$( setters.sequences_color   10  "$grn" )"
+    sequences+="$( setters.sequences_color   11  "$grn" )"
     
     # blu
-    sequences+="$( setters.sequences_color 4   "$blu" )"
-    sequences+="$( setters.sequences_color 6   "$blu" )"
-    sequences+="$( setters.sequences_color 12  "$blu" )"
-    sequences+="$( setters.sequences_color 14  "$blu" )"
+    sequences+="$( setters.sequences_color   4   "$blu" )"
+    sequences+="$( setters.sequences_color   6   "$blu" )"
+    sequences+="$( setters.sequences_color   12  "$blu" )"
+    sequences+="$( setters.sequences_color   14  "$blu" )"
 
     # wht
-    sequences+="$( setters.sequences_color 7   "$wht" )"
-    sequences+="$( setters.sequences_color 15  "$wht" )"
-    sequences+="$( setters.sequences_color 256 "$wht" )"
+    sequences+="$( setters.sequences_color   7   "$wht" )"
+    sequences+="$( setters.sequences_color   15  "$wht" )"
+    sequences+="$( setters.sequences_color   256 "$wht" )"
 
     printf "$sequences"
 }
@@ -112,14 +112,9 @@ setters.theme() {
     log.info "setters" "Setting the theme..."
     log.debug "setters" "In setters.theme()"
     
-    # local rgb_colors=( $( setters.rgb ) )
-
     local blk=( $( converters.hex_to_hsv "${initial_colors[0]}" ) )
-    # local red=( $( converters.hex_to_hsv "${rgb_colors[0]}" ) )
     local red=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 4 ))]}" ) )
-    # local red=( $( converters.hex_to_hsv "${rgb_colors[1]}" ) )
     local grn=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 3 ))]}" ) )
-    # local red=( $( converters.hex_to_hsv "${rgb_colors[2]}" ) )
     local blu=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 2 ))]}" ) )
     local wht=( $( converters.hex_to_hsv "${initial_colors[$(( ${#initial_colors[@]} - 1 ))]}" ) )
 

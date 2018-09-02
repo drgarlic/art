@@ -13,6 +13,11 @@ generators.colors() {
 
     pure.check_program_in_path "convert" || log.error "generators" "Please install imagemagick"
     initial_colors=( $( convert "$wallpaper" -resize 25% +dither -colors "$nb_gen_colors" -unique-colors txt:- | grep -E -o " \#.{6}" ) )
+
+    # convert wallpaper.jpg -resize 25% +dither -colors 5 -define histogram:unique-colors=true -format "%c" histogram:info:
+
+    # convert wallpaper.jpg -resize 25% +dither -colors 16 -unique-colors -scale 4000% test.png
+
     log.debug "generators" "initial_colors = ${initial_colors[@]}"
 
     [[ ${#initial_colors[@]} -lt 1 ]] && rm -R "${thm_dir}/${theme}" && log.error "generators" "Something is wrong with the picture"
