@@ -55,16 +55,13 @@ arguments.args() {
                 # Clear all config files
 
                 [[ -f "$conf_file" ]] && rm "$conf_file"
-                [[ -f "$lamp_file" ]] && rm "$lamp_file"
                 [[ -f "$xres_file" ]] && rm "$xres_file"
             ;;
             "-clear-all" )
                 # Clear all config files and themes
 
                 [[ -f "$conf_file" ]] && rm "$conf_file"
-                [[ -f "$lamp_file" ]] && rm "$lamp_file"
                 [[ -f "$xres_file" ]] && rm "$xres_file"
-
                 [[ -d "$thm_dir" ]] && rm -R "$thm_dir"
             ;;
             "-dark" )

@@ -113,7 +113,7 @@ pale.main() {
     local fred="\\e[31m"
     local fgrn="\\e[32m"
     local fblu="\\e[34m"
-    local fwht="\\e[37m"
+    local fwht="\\e[0m"
 
     printf "\n"
     for (( ; i < $nb_lines; i++ )) { \

@@ -20,7 +20,7 @@ updaters.desktop() {
 
     log.info "updaters" "Updating via the EDITME file..."
 
-    . EDITME
+    bash $edme_file
 
     log.info "updaters" "Updating X.org..."
 

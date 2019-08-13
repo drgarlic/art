@@ -7,7 +7,7 @@
 # Contributors:             none
 
 # ---
-# GLOBAL
+# LOCAL
 # ---
 
 # Import functions and libraries
@@ -24,21 +24,35 @@ art-utils.import() {
     . ${fun_dir}/updaters
 
     # Libraries
-    . ${lib_dir}/log
-    . ${lib_dir}/pure
+    . log || ( printf "ERROR: Couldn't import the log library" && exit 1 )
+    . pure  || ( printf "ERROR: Couldn't import the pure library" && exit 1 )
 }
 
 # Set various paths
 art-utils.paths() {
     # Directories
-    art_dir="${HOME}/.art"
     cnf_dir="${HOME}/.config/art"
-    fun_dir="${art_dir}/functions"
-    lib_dir="${art_dir}/libraries"
+    fun_dir="/usr/local/bin/art_functions"
     thm_dir="${cnf_dir}/themes"
 
     # Files
     conf_file="${cnf_dir}/art.conf"
-    lamp_file="${cnf_dir}/.lamp.cache"
+    edme_file="${cnf_dir}/EDITME"
     xres_file="${HOME}/.Xresources.colors"
 }
+
+# ---
+# MAIN
+# ---
+
+art-utils.main() {
+    art-utils.paths
+
+    art-utils.import
+}
+
+# ---
+# LAUNCH
+# ---
+
+art-utils.main

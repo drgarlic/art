@@ -11,8 +11,6 @@
 # ---
 
 . art-utils
-art-utils.paths
-art-utils.import
 
 # ---
 # GLOBAL

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Description:              A quick demonstration of some of art capabilities
+# Description:              A quick demonstrator of art capabilities
 # Dependencies:             art
 # Optionnal dependencies:   none
 # Author:                   gawlk
@@ -11,8 +11,6 @@
 # ---
 
 . art-utils
-art-utils.paths
-art-utils.import
 
 # ---
 # MAIN

@@ -77,6 +77,7 @@ initiators.init() {
 
     mkdir -p "$thm_dir"
     >> $conf_file
+    >> $edme_file
 }
 
 # Read the colors from the configuration file
